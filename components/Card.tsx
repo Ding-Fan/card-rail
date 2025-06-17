@@ -41,7 +41,7 @@ export const Card: React.FC<CardProps> = ({ note, onTap }) => {
     <div
       ref={cardRef}
       data-testid="note-card"
-      className={`h-full w-full bg-white rounded-lg shadow-lg cursor-pointer p-6 flex flex-col 
+      className={`h-full w-full bg-white rounded-lg shadow-lg cursor-pointer p-6 flex flex-col relative
         transition-all duration-600 ease-out
         hover:shadow-xl hover:scale-105
         ${isAnimated 
@@ -50,23 +50,19 @@ export const Card: React.FC<CardProps> = ({ note, onTap }) => {
         }`}
       onClick={handleClick}
     >
-      {/* Card Header */}
-      <div data-testid="card-header" className="flex-none mb-4 flex items-start justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 line-clamp-2 flex-1 mr-3">
-          {note.title}
-        </h1>
-        
+      {/* Fixed Card Header */}
+      <div data-testid="card-header" className="absolute top-4 right-4 z-10">
         {/* Edit Button */}
         <button
           data-testid="edit-button"
           onClick={handleEditClick}
           aria-label="Edit note"
           role="button"
-          className="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center"
+          className="w-7 h-7 bg-gray-400 text-white rounded-full shadow-sm hover:bg-gray-500 transition-colors flex items-center justify-center"
         >
           <svg
             data-testid="edit-icon"
-            className="w-4 h-4"
+            className="w-3 h-3"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -82,10 +78,10 @@ export const Card: React.FC<CardProps> = ({ note, onTap }) => {
         </button>
       </div>
 
-      {/* Card Content - Hidden overflow with fade mask */}
+      {/* Card Content - Full height */}
       <div 
         data-testid="card-content-wrapper"
-        className="flex-1 relative overflow-hidden"
+        className="h-full relative overflow-hidden"
       >
         <div 
           data-testid="card-content"
