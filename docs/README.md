@@ -1,19 +1,25 @@
-# Card Rail - Mobile-First Note Taking App
+# Card Rail - Minimalist Mobile Note App
 
-A beautiful, mobile-first note-taking application built with Next.js, TypeScript, Tailwind CSS, and React Markdown. Experience the tactile feel of physical cards in a digital environment.
+A beautiful, Instagram Stories-inspired note-taking application built with Next.js, TypeScript, and Tailwind CSS. Experience clean, distraction-free vertical scrolling through your notes.
 
 ## Features
 
-- 📱 **Mobile-First Design** - Optimized for phone screens with full-screen cards
+- 📱 **Mobile-First Design** - Optimized for vertical scrolling like social media stories
 - 📝 **Markdown Support** - Write in markdown, see it rendered beautifully
-- 🎨 **Skeuomorphic Card Design** - Cards that feel like real paper with subtle shadows
-- 📚 **Vertical Card Stack** - Scroll through multiple notes vertically
-- 🎭 **Fade Mask Effect** - Elegant overflow indication without scrollbars
-- ✏️ **Embedded Edit Buttons** - Edit button integrated within each card header
-- 🧭 **Note Detail Pages** - Full-screen note viewing with navigation
-- ⚡ **Performance Optimized** - Lightweight and fast with minimal dependencies
-- 🧪 **Test-Driven Development** - Comprehensive test coverage with Vitest
+- 🎨 **Minimalist Card Design** - Clean cards with subtle shadows and animations
+- 📚 **Vertical Card Stream** - Smooth scrolling through notes with snap-to-card behavior
+- 🎭 **Floating Edit Button** - Small, subtle edit button that doesn't interfere with content
+- 🧭 **Enhanced Navigation** - Scroll indicators, touch gestures, and smooth animations
+- ⚡ **Performance Optimized** - Lightweight 148kB bundle with CSS-only animations
+- 🧪 **Test-Driven Development** - 25/25 tests passing with comprehensive coverage
 - 🚀 **Next.js 15** - Latest App Router with TypeScript
+
+## Key Design Principles
+
+- **Content First**: Content takes full card space with floating edit controls
+- **Gesture Driven**: Vertical swipe gestures for natural navigation
+- **Visual Feedback**: Entry animations and scroll indicators for orientation
+- **Distraction Free**: No search bars or view toggles, just pure content flow
 
 ## Getting Started
 
@@ -35,12 +41,14 @@ Open [http://localhost:3000](http://localhost:3000) on your mobile device or bro
 
 ```
 app/
-├── page.tsx              # Main page with vertical card stack
-├── note/[id]/page.tsx    # Note detail pages
+├── page.tsx              # Main page with vertical card stream
+├── note/[id]/
+│   ├── page.tsx          # Server component (async params handling)
+│   └── NoteClient.tsx    # Client component for editing
 ├── globals.css           # Global styles and utilities
 └── layout.tsx            # App layout
 components/
-├── Card.tsx              # Card component with embedded edit button
+├── Card.tsx              # Simplified card with floating edit button
 ├── Card.test.tsx         # Comprehensive Card tests
 └── EditButton.test.tsx   # Edit button specific tests
 data/
@@ -54,21 +62,22 @@ test/
 ## Usage
 
 ### Card Navigation
-1. **Scroll Vertically**: Swipe up/down to navigate between cards
-2. **Full-Screen Cards**: Each note takes up the entire phone screen for optimal readability
-3. **Edit Button**: Tap the edit button in each card header to view the full note
-4. **Navigation**: Use back button to return to the main card stack
+1. **Vertical Scrolling**: Swipe up/down or scroll to navigate between cards
+2. **Scroll Indicators**: Click dots on the right side to jump to specific cards
+3. **Touch Gestures**: Vertical swipe detection for natural mobile navigation
+4. **Smooth Transitions**: CSS snap-scroll with entry animations for each card
 
-### Content Display
-- **Markdown Rendering**: Notes support full markdown syntax with custom mobile styling
-- **Overflow Handling**: Long content is elegantly hidden with a fade mask effect
-- **Visual Hierarchy**: Clean typography optimized for mobile reading
-- **Responsive Layout**: Adapts perfectly to different screen sizes
+### Content Experience
+- **Full Content Space**: Content flows naturally throughout the entire card
+- **Floating Edit Button**: Small gray button in top-right corner for editing
+- **Markdown Rendering**: Rich text support with mobile-optimized styling
+- **Fade Mask**: Bottom gradient indicates when content continues below
+- **Responsive Typography**: Clean, readable text at optimal sizes
 
 ### Sample Content
 The app includes 4 diverse sample notes:
 - **Welcome Card**: Introduction to Card Rail features
-- **Quick Note**: Simple markdown example
+- **Quick Note**: Simple markdown example  
 - **Meeting Notes**: Professional content with structured formatting
 - **Recipe Ideas**: Creative content with emojis and lists
 
@@ -87,40 +96,42 @@ Run the comprehensive test suite:
 
 ```bash
 # Run all tests
-pnpm test:run
+pnpm test
 
-# Run tests in watch mode (for development)
+# Run tests in watch mode (for development) 
 pnpm test:watch
 
-# Run with coverage report
-pnpm test:coverage
+# Build production version
+pnpm build
 ```
 
-**Current Test Coverage**: 23/23 tests passing
+**Current Test Coverage**: 25/25 tests passing
 - Card component rendering and styling
 - Edit button positioning and interactions
-- Markdown content display
+- Markdown content display and formatting
 - Mobile-first responsive design
-- Touch interactions and navigation
-- Overflow handling with fade mask
+- Touch interactions and gesture detection
+- Scroll indicators and navigation
 - Note detail page functionality
+- Entry animations and visual effects
 
 ## Design Philosophy
 
-This app embraces the **skeuomorphic card metaphor** - notes feel like physical cards you can touch and interact with. The design is clean yet tactile, with subtle shadows and a fade mask that mimics how text disappears at the edge of physical paper.
+This app embraces **minimalist design principles** inspired by Instagram Stories and TikTok's vertical scrolling experience. Content takes center stage with subtle, non-intrusive controls.
 
 **Key Design Decisions**:
-- **Mobile-First**: Cards are optimized for phone screens with full-height display
-- **Vertical Stack**: Natural scrolling metaphor like flipping through a deck of cards
-- **No Scrollbars**: Clean card aesthetic maintained with fade mask for overflow
-- **Typography**: Carefully chosen font sizes and spacing for mobile readability
-- **Performance**: Lightweight implementation without heavy animation libraries
-- **Embedded UI**: Edit buttons integrated naturally within card headers
+- **Content First**: Full card space dedicated to content with floating controls
+- **Gesture Driven**: Natural touch interactions for mobile-native feel
+- **Visual Feedback**: Subtle animations and indicators guide user interaction
+- **Distraction Free**: No unnecessary UI elements, just pure content flow
+- **Performance**: CSS-only animations keep bundle size minimal (148kB)
+- **Accessibility**: Proper ARIA labels and keyboard navigation support
 
 ## Development Approach
 
-- **Test-Driven Development (TDD)**: Features developed with tests written first
+- **Test-Driven Development (TDD)**: All features developed with comprehensive test coverage
 - **Component-Based Architecture**: Modular, reusable React components
+- **Mobile-First**: Designed and optimized for mobile devices from the ground up
 - **TypeScript First**: Strong typing for better developer experience
 - **Performance Conscious**: Minimal dependencies and optimized rendering
 

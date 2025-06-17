@@ -37,11 +37,14 @@ describe('Card Component', () => {
     mockPush.mockClear()
   })
 
-  it('should render the note title in header', () => {
+  it('should render a floating edit button in header area', () => {
     render(<Card note={mockNote} />)
     
     const header = screen.getByTestId('card-header')
-    expect(header).toHaveTextContent('Test Note')
+    const editButton = screen.getByTestId('edit-button')
+    
+    expect(header).toBeInTheDocument()
+    expect(editButton).toBeInTheDocument()
   })
 
   it('should render markdown content as HTML', () => {
@@ -127,12 +130,13 @@ describe('Card Component', () => {
     render(<Card note={mockNote} />)
     
     const editButton = screen.getByTestId('edit-button')
-    expect(editButton).toHaveClass('bg-blue-600', 'text-white', 'rounded-full')
-    expect(editButton).toHaveClass('w-10', 'h-10') // 40px touch target, smaller for header
+    expect(editButton).toHaveClass('bg-gray-400', 'text-white', 'rounded-full')
+    expect(editButton).toHaveClass('w-7', 'h-7') // Smaller, subtle button
     
     // Should have edit icon
     const editIcon = screen.getByTestId('edit-icon')
     expect(editIcon).toBeInTheDocument()
+    expect(editIcon).toHaveClass('w-3', 'h-3')
   })
 
   it('should navigate to edit page when edit button is clicked', () => {

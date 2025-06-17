@@ -52,12 +52,13 @@ describe('Card Component - Edit Button', () => {
     render(<Card note={mockNote} />)
     
     const editButton = screen.getByTestId('edit-button')
-    expect(editButton).toHaveClass('bg-blue-600', 'text-white', 'rounded-full')
-    expect(editButton).toHaveClass('w-10', 'h-10') // 40px touch target, smaller than floating button
+    expect(editButton).toHaveClass('bg-gray-400', 'text-white', 'rounded-full')
+    expect(editButton).toHaveClass('w-7', 'h-7') // Smaller, subtle floating button
     
     // Should have edit icon
     const editIcon = screen.getByTestId('edit-icon')
     expect(editIcon).toBeInTheDocument()
+    expect(editIcon).toHaveClass('w-3', 'h-3')
   })
 
   it('should navigate to edit page when edit button is clicked', () => {

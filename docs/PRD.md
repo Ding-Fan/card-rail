@@ -1,67 +1,67 @@
 # Product Requirements Document (PRD)
-## Card Rail - Mobile-First Note-Taking Application
+## Card Rail - Minimalist Vertical Note Stream
 
 ### Document Information
-- **Version**: 1.0
-- **Date**: June 16, 2025
-- **Status**: In Development
+- **Version**: 2.0
+- **Date**: June 17, 2025
+- **Status**: Simplified MVP Complete
 - **Owner**: Development Team
 
 ---
 
 ## Executive Summary
 
-Card Rail is a mobile-first, card-based note-taking application that combines the tactile metaphor of physical note cards with modern web technologies. The application focuses on providing a seamless, beautiful, and intuitive experience for capturing, organizing, and editing notes on mobile devices.
+Card Rail is a minimalist, Instagram Stories-inspired note-taking application that provides a distraction-free vertical scrolling experience. The application focuses on content-first design with subtle, non-intrusive controls that let notes be the star of the experience.
 
 ---
 
 ## Vision & Goals
 
 ### Vision Statement
-To create the most intuitive and visually appealing mobile note-taking experience that feels as natural as writing on physical cards.
+To create the most focused and distraction-free mobile note-taking experience that feels as natural as scrolling through social media stories.
 
 ### Primary Goals
-1. **Mobile-First Experience**: Optimize for phone screens with touch-friendly interactions
-2. **Card Metaphor**: Implement a skeuomorphic design that mimics physical note cards
-3. **Markdown Support**: Enable rich text formatting through markdown syntax
-4. **Smooth Animations**: Provide fluid, delightful interactions using anime.js
-5. **Scalable Architecture**: Build with modern web technologies for maintainability
+1. **Content-First Design**: Maximize content visibility with minimal UI interference
+2. **Vertical Scrolling Experience**: Instagram Stories/TikTok-style navigation
+3. **Gesture-Driven Interface**: Natural touch interactions for mobile devices
+4. **Markdown Support**: Rich text formatting without visual complexity
+5. **Performance Optimized**: Lightweight, fast loading with CSS-only animations
 
 ### Success Metrics
-- Fast load times (< 2s initial load)
-- Smooth animations (60fps)
-- Intuitive user interactions
-- Zero data loss
-- Comprehensive test coverage (>90%)
+- Ultra-fast load times (< 1s)
+- Smooth 60fps scrolling and animations
+- Minimal bundle size (< 200kB)
+- Intuitive single-gesture navigation
+- Zero UI clutter or distractions
 
 ---
 
 ## User Requirements
 
 ### Target Users
-- **Primary**: Mobile-first note-takers and content creators
-- **Secondary**: Students, professionals, and creative writers
-- **Tertiary**: Anyone who prefers visual, card-based organization
+- **Primary**: Mobile content consumers who prefer vertical scrolling
+- **Secondary**: Minimalism enthusiasts who want distraction-free note-taking
+- **Tertiary**: Users transitioning from social media apps to productivity tools
 
 ### User Stories
 
 #### Core Functionality
-1. **As a mobile user**, I want to view my notes as beautiful cards that fit my phone screen, so I can quickly scan and navigate my content.
+1. **As a mobile user**, I want to scroll vertically through my notes like social media stories, so I can quickly browse content in a familiar way.
 
-2. **As a note-taker**, I want to tap on a card to edit its content in markdown, so I can format my notes with headers, lists, and emphasis.
+2. **As a content creator**, I want my note content to use the full screen space, so I can see maximum information without UI interference.
 
-3. **As a user**, I want smooth animations when interacting with cards, so the experience feels polished and engaging.
+3. **As a user**, I want to navigate between notes using familiar vertical swipe gestures, so the experience feels natural and intuitive.
 
-4. **As a content creator**, I want my markdown to be rendered beautifully on cards, so I can see formatted content at a glance.
+4. **As a note editor**, I want a small, unobtrusive edit button that doesn't interfere with reading, so I can access editing when needed without visual clutter.
 
-5. **As a mobile user**, I want the interface to be optimized for touch interactions, so I can easily navigate and edit on my phone.
+5. **As a mobile user**, I want scroll indicators to show my position and allow quick jumping, so I can navigate efficiently through multiple notes.
 
 #### Advanced Features
-6. **As a user**, I want my notes to be automatically saved to a cloud database, so I never lose my content.
+6. **As a content creator**, I want my markdown to render beautifully with mobile-optimized typography, so my notes look professional and readable.
 
-7. **As a developer**, I want comprehensive error handling, so users have a graceful experience even when things go wrong.
+7. **As a user**, I want subtle entry animations that provide visual feedback, so the interface feels responsive and polished.
 
-8. **As a user**, I want a demo mode when the database is unavailable, so I can still experience the app's features.
+8. **As a mobile user**, I want the app to work offline and save locally, so I can access my notes anywhere without connectivity concerns.
 
 ---
 
@@ -71,34 +71,34 @@ To create the most intuitive and visually appealing mobile note-taking experienc
 - **Frontend Framework**: Next.js 15.3.3 with App Router
 - **Language**: TypeScript for type safety
 - **Styling**: Tailwind CSS 4.x for utility-first styling
-- **Database**: Supabase for real-time data and authentication
-- **Animations**: anime.js for smooth transitions
+- **Content**: React Markdown with remark-gfm for GitHub Flavored Markdown
+- **Animations**: CSS transitions only (no heavy libraries)
 - **Testing**: Vitest + React Testing Library for comprehensive testing
 - **Package Manager**: pnpm for efficient dependency management
 
 ### Performance Requirements
-- **Initial Load**: < 2 seconds on 3G networks
-- **Animation Performance**: 60fps during all transitions
-- **Bundle Size**: Optimized with code splitting
-- **Memory Usage**: Efficient component lifecycle management
+- **Initial Load**: < 1 second on 3G networks
+- **Bundle Size**: < 200kB total
+- **Animation Performance**: 60fps during all transitions and scrolling
+- **Memory Usage**: Minimal state management, efficient re-renders
 
 ### Browser Support
 - **Primary**: Modern mobile browsers (iOS Safari, Chrome Mobile)
-- **Secondary**: Desktop browsers for development/admin use
-- **Minimum**: ES2017+ support required
+- **Secondary**: Desktop browsers with mobile viewport simulation
+- **Progressive Enhancement**: Graceful degradation for older browsers
 
 ---
 
 ## Functional Requirements
 
-### 1. Card Display System
+### 1. Vertical Card Stream System
 **Priority**: P0 (Critical)
 
 #### Requirements
 - Cards should occupy the full phone screen height (100vh)
-- Card width should be optimized for mobile viewing
-- Cards should display rendered markdown content
-- Cards should show title prominently
+- Vertical scroll navigation with snap-to-card behavior
+- Content should use entire card space (no reserved header area)
+- Cards should display rendered markdown content with mobile typography
 - Cards should have subtle skeuomorphic design elements
 
 #### Acceptance Criteria
