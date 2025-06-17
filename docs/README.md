@@ -9,6 +9,8 @@ A beautiful, mobile-first note-taking application built with Next.js, TypeScript
 - 🎨 **Skeuomorphic Card Design** - Cards that feel like real paper with subtle shadows
 - 📚 **Vertical Card Stack** - Scroll through multiple notes vertically
 - 🎭 **Fade Mask Effect** - Elegant overflow indication without scrollbars
+- ✏️ **Embedded Edit Buttons** - Edit button integrated within each card header
+- 🧭 **Note Detail Pages** - Full-screen note viewing with navigation
 - ⚡ **Performance Optimized** - Lightweight and fast with minimal dependencies
 - 🧪 **Test-Driven Development** - Comprehensive test coverage with Vitest
 - 🚀 **Next.js 15** - Latest App Router with TypeScript
@@ -34,11 +36,13 @@ Open [http://localhost:3000](http://localhost:3000) on your mobile device or bro
 ```
 app/
 ├── page.tsx              # Main page with vertical card stack
+├── note/[id]/page.tsx    # Note detail pages
 ├── globals.css           # Global styles and utilities
 └── layout.tsx            # App layout
 components/
-├── Card.tsx              # Card component with fade mask
-└── Card.test.tsx         # Comprehensive Card tests
+├── Card.tsx              # Card component with embedded edit button
+├── Card.test.tsx         # Comprehensive Card tests
+└── EditButton.test.tsx   # Edit button specific tests
 data/
 └── mockNotes.ts          # Sample note data (4 diverse examples)
 lib/
@@ -52,12 +56,14 @@ test/
 ### Card Navigation
 1. **Scroll Vertically**: Swipe up/down to navigate between cards
 2. **Full-Screen Cards**: Each note takes up the entire phone screen for optimal readability
-3. **Tap to Interact**: Tap any card to trigger interactions (currently logs to console)
+3. **Edit Button**: Tap the edit button in each card header to view the full note
+4. **Navigation**: Use back button to return to the main card stack
 
 ### Content Display
 - **Markdown Rendering**: Notes support full markdown syntax with custom mobile styling
 - **Overflow Handling**: Long content is elegantly hidden with a fade mask effect
 - **Visual Hierarchy**: Clean typography optimized for mobile reading
+- **Responsive Layout**: Adapts perfectly to different screen sizes
 
 ### Sample Content
 The app includes 4 diverse sample notes:
@@ -90,12 +96,14 @@ pnpm test:watch
 pnpm test:coverage
 ```
 
-**Current Test Coverage**: 8/8 tests passing
-- Card component rendering
+**Current Test Coverage**: 23/23 tests passing
+- Card component rendering and styling
+- Edit button positioning and interactions
 - Markdown content display
-- Mobile-first styling
-- Touch interactions
+- Mobile-first responsive design
+- Touch interactions and navigation
 - Overflow handling with fade mask
+- Note detail page functionality
 
 ## Design Philosophy
 
@@ -107,6 +115,7 @@ This app embraces the **skeuomorphic card metaphor** - notes feel like physical 
 - **No Scrollbars**: Clean card aesthetic maintained with fade mask for overflow
 - **Typography**: Carefully chosen font sizes and spacing for mobile readability
 - **Performance**: Lightweight implementation without heavy animation libraries
+- **Embedded UI**: Edit buttons integrated naturally within card headers
 
 ## Development Approach
 

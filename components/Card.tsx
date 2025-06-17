@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useRouter } from 'next/navigation';
@@ -13,6 +13,18 @@ interface CardProps {
 
 export const Card: React.FC<CardProps> = ({ note, onTap }) => {
   const router = useRouter();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isAnimated, setIsAnimated] = React.useState(false);
+
+  // Entry animation on mount using CSS transitions
+  useEffect(() => {
+    // Trigger animation after a small delay
+    const timer = setTimeout(() => {
+      setIsAnimated(true);
+    }, Math.random() * 200); // Stagger animation for multiple cards
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleClick = () => {
     if (onTap) {
@@ -27,8 +39,15 @@ export const Card: React.FC<CardProps> = ({ note, onTap }) => {
 
   return (
     <div
+      ref={cardRef}
       data-testid="note-card"
-      className="h-full w-full bg-white rounded-lg shadow-lg cursor-pointer p-6 flex flex-col"
+      className={`h-full w-full bg-white rounded-lg shadow-lg cursor-pointer p-6 flex flex-col 
+        transition-all duration-600 ease-out
+        hover:shadow-xl hover:scale-105
+        ${isAnimated 
+          ? 'opacity-100 scale-100 translate-y-0' 
+          : 'opacity-0 scale-95 translate-y-4'
+        }`}
       onClick={handleClick}
     >
       {/* Card Header */}

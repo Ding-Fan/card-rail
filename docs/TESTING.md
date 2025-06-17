@@ -16,8 +16,13 @@ test/
 ├── setup.ts           # Global test configuration
 └── utils.tsx          # Custom render helpers and utilities
 components/
-├── Card.test.tsx      # Card component tests (8 tests)
+├── Card.test.tsx      # Card component tests (13 tests)
+├── EditButton.test.tsx # Edit button specific tests (5 tests)
 └── Card.tsx           # Card component implementation
+app/
+└── note/[id]/
+    ├── page.test.tsx  # Note detail page tests (5 tests)
+    └── page.tsx       # Note detail page implementation
 data/
 └── mockNotes.ts       # Test data (4 sample notes)
 lib/
@@ -42,17 +47,34 @@ pnpm test:coverage
 
 ## 📊 Current Test Coverage
 
-**8/8 tests passing** with comprehensive coverage of:
+**23/23 tests passing** with comprehensive coverage of:
 
-### Card Component Tests
+### Card Component Tests (13 tests)
 - ✅ Note title rendering
 - ✅ Markdown content rendering (headers, emphasis, lists)
 - ✅ Mobile-first full-height styling
 - ✅ Card-like visual styling (shadows, rounded corners)
-- ✅ Click interactions and onTap callbacks
-- ✅ Touch target size requirements
-- ✅ Overflow content hiding (no scrollbars)
-- ✅ Fade mask effect for content overflow
+- ✅ Touch interactions and click handlers
+- ✅ Mobile touch target sizing (44px minimum)
+- ✅ Content overflow handling with fade mask
+- ✅ Edit button embedded in card header
+- ✅ Edit button navigation functionality
+- ✅ Event propagation handling
+- ✅ Accessibility features (ARIA labels)
+
+### Edit Button Tests (5 tests)
+- ✅ Edit button positioning within card header
+- ✅ Button styling and visual design
+- ✅ Navigation to note detail pages
+- ✅ Event propagation prevention
+- ✅ Accessibility and touch targets
+
+### Note Detail Page Tests (5 tests)
+- ✅ Note content rendering (title and markdown)
+- ✅ Back button functionality
+- ✅ Edit button in detail header
+- ✅ Navigation between pages
+- ✅ Error handling for invalid note IDs
 
 ## 📝 Writing Tests (TDD Approach)
 
@@ -144,6 +166,104 @@ function MyComponent({ name }: Props) {
     </div>
   )
 }
+```
+
+## 🧭 Testing Navigation & Page Components
+
+### Testing Next.js App Router Pages
+
+```typescript
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen } from '../../../test/utils'
+import NotePage from './page'
+
+// Mock Next.js router
+const mockPush = vi.fn()
+const mockBack = vi.fn()
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockPush,
+    back: mockBack,
+  }),
+}))
+
+// Mock data functions
+vi.mock('../../../data/mockNotes', () => ({
+  getMockNote: vi.fn((id: string) => {
+    if (id === '1') {
+      return {
+        id: '1',
+        title: 'Test Note',
+        content: '# Test Note\n\nThis is test content.',
+        created_at: '2025-06-16T10:00:00Z',
+        updated_at: '2025-06-16T10:00:00Z',
+      }
+    }
+    return undefined
+  })
+}))
+
+describe('Note Detail Page', () => {
+  it('should navigate back when back button is clicked', () => {
+    const props = { params: { id: '1' } }
+    render(<NotePage params={props.params} />)
+    
+    const backButton = screen.getByTestId('back-button')
+    backButton.click()
+    
+    expect(mockBack).toHaveBeenCalled()
+  })
+
+  it('should show not found message for invalid note id', () => {
+    const props = { params: { id: 'invalid' } }
+    render(<NotePage params={props.params} />)
+    
+    expect(screen.getByText('Note not found')).toBeInTheDocument()
+  })
+})
+```
+
+### Testing Component Navigation
+
+```typescript
+// Test edit button navigation from cards
+it('should navigate to edit page when edit button is clicked', () => {
+  render(<Card note={mockNote} />)
+  
+  const editButton = screen.getByTestId('edit-button')
+  fireEvent.click(editButton)
+  
+  expect(mockPush).toHaveBeenCalledWith('/note/1')
+})
+
+// Test event propagation
+it('should stop event propagation on edit button click', () => {
+  const onTap = vi.fn()
+  render(<Card note={mockNote} onTap={onTap} />)
+  
+  const editButton = screen.getByTestId('edit-button')
+  fireEvent.click(editButton)
+  
+  // Card onTap should not be called when edit button is clicked
+  expect(onTap).not.toHaveBeenCalled()
+  expect(mockPush).toHaveBeenCalledWith('/note/1')
+})
+```
+
+### Handling Duplicate Content in Tests
+
+When testing pages with markdown content, you may encounter duplicate text (e.g., title appears both in page header and markdown content):
+
+```typescript
+// ❌ This will fail if content has duplicate text
+expect(screen.getByText('Test Note')).toBeInTheDocument()
+
+// ✅ Better approach - check for multiple instances
+const mainTitles = screen.getAllByText('Test Note')
+expect(mainTitles.length).toBe(2) // One main title, one in markdown
+
+// ✅ Or target specific elements
+expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Test Note')
 ```
 
 ## 🛠️ Testing Utilities
@@ -258,8 +378,6 @@ const mockNote: Note = {
 // Reusable across all tests
 import { getAllMockNotes } from '../data/mockNotes'
 ```
-// - Environment variables
-```
 
 ## 📊 Test Coverage Goals
 
@@ -315,7 +433,6 @@ expect(notes).toHaveLength(4)
 ---
 
 *This testing approach ensures Card Rail maintains high quality as new features are added while keeping the test suite fast and reliable.*
-```
 
 ## 🔄 TDD Workflow Example
 
