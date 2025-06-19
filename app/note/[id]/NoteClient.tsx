@@ -78,7 +78,7 @@ export default function NoteClient({ note, noteId }: NoteClientProps) {
             data-testid="back-button"
             onClick={handleBack}
             aria-label="Go back"
-            className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+            className="w-8 h-8 flex items-center justify-center text-gray-600 rounded-full transition-colors"
           >
             <svg
               className="w-4 h-4"

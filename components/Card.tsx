@@ -51,7 +51,6 @@ export const Card: React.FC<CardProps> = ({ note, onTap }) => {
       data-testid="note-card"
       className={`w-full bg-white rounded-lg shadow-lg cursor-pointer p-6 flex flex-col relative
         transition-all duration-600 ease-out
-        hover:shadow-xl hover:scale-105
         ${heightClass}
         ${isAnimated 
           ? 'opacity-100 scale-100 translate-y-0' 
@@ -67,7 +66,7 @@ export const Card: React.FC<CardProps> = ({ note, onTap }) => {
           onClick={handleEditClick}
           aria-label="Edit note"
           role="button"
-          className="w-7 h-7 bg-gray-400 text-white rounded-full shadow-sm hover:bg-gray-500 transition-colors flex items-center justify-center"
+          className="w-7 h-7 bg-gray-400 text-white rounded-full shadow-sm transition-colors flex items-center justify-center"
         >
           <svg
             data-testid="edit-icon"

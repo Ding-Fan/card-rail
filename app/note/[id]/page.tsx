@@ -20,7 +20,7 @@ export default async function NotePage({ params }: NotePageProps) {
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Note not found</h1>
           <Link
             href="/"
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors"
           >
             Go Back
           </Link>
