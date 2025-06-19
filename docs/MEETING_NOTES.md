@@ -1,6 +1,57 @@
 # Card Rail Development Meeting Notes
 
 **Date**: June 19, 2025  
+**Meeting Type**: Draggable FAB & Add Note Feature Implementation  
+**Status**: In Progress  
+
+---
+
+## Development Rule Documentation
+
+### 📋 **Rule: Always Update Meeting Notes First**
+- **Rule**: Before implementing any new feature, always update meeting notes first
+- **Purpose**: Maintain comprehensive development history and decision tracking
+- **Implementation**: Add meeting entry with requirements, decisions, and technical approach
+- **Benefits**: Clear audit trail, better collaboration, requirement validation
+
+---
+
+## Meeting Attendees
+- Product Owner/User
+- Development Team (AI Assistant)
+
+---
+
+## Meeting Agenda & Discussion
+
+### 🎯 **Feature Request: Draggable FAB for Adding Notes**
+
+#### **User Requirements**
+1. **FAB Design**: Japanese wall socket style (two black squares, bagel rounded background, stone border, shadow)
+2. **Positioning**: Default at golden spiral point on right side, fully draggable
+3. **Functionality**: Navigate to `/note/new` with auto-generated timestamp header
+4. **Smart Save**: Save only if content exists beyond auto-generated header
+5. **Persistence**: Always visible, draggable with comfort padding boundaries
+
+#### **Technical Approach**
+- **DraggableFAB Component**: Custom styled draggable floating action button
+- **Position Management**: localStorage persistence with boundary constraints
+- **Route Handler**: New `/note/new` dynamic route
+- **useNotes Enhancement**: Add createNote and smart save functionality
+- **Content Detection**: Logic to determine if note should be saved
+
+#### **Implementation Plan**
+1. Create DraggableFAB component with Japanese socket styling
+2. Add drag-and-drop functionality with position persistence
+3. Implement `/note/new` route with auto-generated timestamp
+4. Enhance useNotes hook for note creation
+5. Add smart save logic based on content analysis
+
+---
+
+# Card Rail Development Meeting Notes
+
+**Date**: June 19, 2025  
 **Meeting Type**: Local-First Architecture Implementation  
 **Status**: Completed  
 

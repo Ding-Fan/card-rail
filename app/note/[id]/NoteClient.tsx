@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import * as Switch from '@radix-ui/react-switch';
 import { Note } from '../../../lib/types';
+import { useNotes } from '../../../lib/useNotes';
 
 interface NoteClientProps {
   note: Note;
@@ -14,6 +15,7 @@ interface NoteClientProps {
 
 export default function NoteClient({ note, noteId }: NoteClientProps) {
   const router = useRouter();
+  const { updateNote, deleteNote, hasUserContent } = useNotes();
   const [isEditMode, setIsEditMode] = useState(false);
   const [content, setContent] = useState(note.content);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'idle'>('saved');
@@ -32,39 +34,46 @@ export default function NoteClient({ note, noteId }: NoteClientProps) {
     return firstLine || 'Untitled Note';
   }, []);
 
-  // Auto-save functionality
+  // Smart auto-save functionality
   useEffect(() => {
     if (content === note.content) return;
     
     setSaveStatus('saving');
     
     const timeoutId = setTimeout(() => {
-      // Save to localStorage
-      const savedNotes = JSON.parse(localStorage.getItem('card-rail-notes') || '{}');
-      savedNotes[noteId] = {
-        ...note,
+      // Update the note using the hook
+      updateNote(noteId, {
         content,
-        updated_at: new Date().toISOString(),
-      };
-      localStorage.setItem('card-rail-notes', JSON.stringify(savedNotes));
+        title: getTitle(content)
+      });
       setSaveStatus('saved');
-      
-      // Dispatch custom event to notify other components
-      window.dispatchEvent(new CustomEvent('notes-updated'));
     }, 2000);
 
     return () => clearTimeout(timeoutId);
-  }, [content, note, noteId]);
+  }, [content, note.content, noteId, updateNote, getTitle]);
 
-  // Load saved content from localStorage on mount
+  // Load saved content on mount
   useEffect(() => {
-    const savedNotes = JSON.parse(localStorage.getItem('card-rail-notes') || '{}');
-    if (savedNotes[noteId]) {
-      setContent(savedNotes[noteId].content);
-    }
-  }, [noteId]);
+    setContent(note.content);
+  }, [note.content]);
 
+  // Handle navigation back with smart save/delete logic
   const handleBack = () => {
+    const noteToCheck = { ...note, content };
+    
+    // If note has no user content beyond auto-generated header, delete it
+    if (!hasUserContent(noteToCheck)) {
+      deleteNote(noteId);
+    } else {
+      // Save any pending changes before leaving
+      if (content !== note.content) {
+        updateNote(noteId, {
+          content,
+          title: getTitle(content)
+        });
+      }
+    }
+    
     router.back();
   };
 

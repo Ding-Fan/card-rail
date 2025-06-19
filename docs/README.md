@@ -149,6 +149,16 @@ This app embraces **minimalist design principles** inspired by Instagram Stories
 - **TypeScript First**: Strong typing for better developer experience
 - **Performance Conscious**: Minimal dependencies and optimized rendering
 
+### Development Rules
+
+#### **Rule: Always Update Meeting Notes First**
+Before implementing any new feature:
+1. **Update MEETING_NOTES.md** with requirements, decisions, and technical approach
+2. **Document the rule itself** in relevant documentation files
+3. **Maintain comprehensive development history** for better collaboration and audit trails
+
+This ensures all feature development is properly tracked and requirements are validated before implementation.
+
 ## Contributing
 
 Feel free to open issues and pull requests to improve Card Rail!
