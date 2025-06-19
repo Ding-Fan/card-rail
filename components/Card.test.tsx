@@ -57,11 +57,12 @@ describe('Card Component', () => {
     expect(screen.getByText('Item 2')).toBeInTheDocument()
   })
 
-  it('should have mobile-first full-height styling', () => {
+  it('should have dynamic height based on content', () => {
     render(<Card note={mockNote} />)
     
     const card = screen.getByTestId('note-card')
-    expect(card).toHaveClass('h-full')
+    // Should have dynamic viewport height (one of: h-[24vh], h-[38vh], h-[62vh])
+    expect(card.className).toMatch(/h-\[\d+vh\]/)
     expect(card).toHaveClass('w-full')
   })
 

@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useRouter } from 'next/navigation';
 import { Note } from '../lib/types';
+import { useCardHeight, CARD_HEIGHT_RATIOS } from '../lib/cardHeight';
 
 interface CardProps {
   note: Note;
@@ -15,6 +16,13 @@ export const Card: React.FC<CardProps> = ({ note, onTap }) => {
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
   const [isAnimated, setIsAnimated] = React.useState(false);
+  const cardHeight = useCardHeight(note);
+
+  // Calculate viewport height class based on measured content
+  const heightClass = React.useMemo(() => {
+    const ratio = CARD_HEIGHT_RATIOS[cardHeight];
+    return `h-[${Math.round(ratio * 100)}vh]`;
+  }, [cardHeight]);
 
   // Entry animation on mount using CSS transitions
   useEffect(() => {
@@ -41,9 +49,10 @@ export const Card: React.FC<CardProps> = ({ note, onTap }) => {
     <div
       ref={cardRef}
       data-testid="note-card"
-      className={`h-full w-full bg-white rounded-lg shadow-lg cursor-pointer p-6 flex flex-col relative
+      className={`w-full bg-white rounded-lg shadow-lg cursor-pointer p-6 flex flex-col relative
         transition-all duration-600 ease-out
         hover:shadow-xl hover:scale-105
+        ${heightClass}
         ${isAnimated 
           ? 'opacity-100 scale-100 translate-y-0' 
           : 'opacity-0 scale-95 translate-y-4'
