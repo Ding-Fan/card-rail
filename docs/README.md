@@ -1,15 +1,18 @@
 # Card Rail - Minimalist Mobile Note App
 
-A beautiful, Instagram Stories-inspired note-taking application built with Next.js, TypeScript, and Tailwind CSS. Experience clean, distraction-free vertical scrolling through your notes.
+A beautiful, Instagram Stories-inspired note-taking application built with Next.js, TypeScript, and Tailwind CSS. Experience clean, distraction-free vertical scrolling through your notes with true local-first architecture.
 
 ## Features
 
 - 📱 **Mobile-First Design** - Optimized for vertical scrolling like social media stories
+- 💾 **Local-First Architecture** - All data stored locally with automatic persistence
 - 📝 **Markdown Support** - Write in markdown, see it rendered beautifully
 - 🎨 **Minimalist Card Design** - Clean cards with subtle shadows and animations
 - 📚 **Vertical Card Stream** - Smooth scrolling through notes with snap-to-card behavior
 - 🎭 **Floating Edit Button** - Small, subtle edit button that doesn't interfere with content
 - 🧭 **Enhanced Navigation** - Scroll indicators, touch gestures, and smooth animations
+- 🔄 **Real-time Data Sync** - Seamless synchronization between pages
+- 📱 **Offline-Capable** - Works completely offline with localStorage persistence
 - ⚡ **Performance Optimized** - Lightweight 148kB bundle with CSS-only animations
 - 🧪 **Test-Driven Development** - 25/25 tests passing with comprehensive coverage
 - 🚀 **Next.js 15** - Latest App Router with TypeScript
@@ -17,9 +20,12 @@ A beautiful, Instagram Stories-inspired note-taking application built with Next.
 ## Key Design Principles
 
 - **Content First**: Content takes full card space with floating edit controls
+- **Local First**: Your data belongs to you - stored locally with automatic persistence
+- **Mobile First**: Every interface decision prioritizes mobile usability
 - **Gesture Driven**: Vertical swipe gestures for natural navigation
 - **Visual Feedback**: Entry animations and scroll indicators for orientation
 - **Distraction Free**: No search bars or view toggles, just pure content flow
+- **Offline Capable**: No internet required, no cloud dependencies
 
 ## Getting Started
 

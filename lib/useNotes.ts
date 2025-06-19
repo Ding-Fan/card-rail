@@ -23,14 +23,37 @@ export function useNotes() {
             setNotes(parsedNotes);
           }
         } else {
-          // First time load - use mock notes
+          // First time load - use mock notes and save to localStorage for local-first behavior
           const mockNotes = getAllMockNotes();
+          
+          // Convert array to object format for easier access by ID
+          const notesObject = mockNotes.reduce((acc, note) => {
+            acc[note.id] = note;
+            return acc;
+          }, {} as Record<string, Note>);
+          
+          // Save to localStorage immediately for local-first persistence
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(notesObject));
+          
           setNotes(mockNotes);
         }
       } catch (error) {
         console.error('Failed to load notes from localStorage:', error);
-        // Fallback to mock notes
+        // Fallback to mock notes and save them for local-first behavior
         const mockNotes = getAllMockNotes();
+        
+        // Convert array to object format and save to localStorage
+        const notesObject = mockNotes.reduce((acc, note) => {
+          acc[note.id] = note;
+          return acc;
+        }, {} as Record<string, Note>);
+        
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(notesObject));
+        } catch (saveError) {
+          console.error('Failed to save fallback notes to localStorage:', saveError);
+        }
+        
         setNotes(mockNotes);
       } finally {
         setIsLoading(false);

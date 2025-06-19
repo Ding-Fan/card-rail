@@ -1,16 +1,19 @@
 # Card Rail - Mobile-First Note Taking App
 
-A beautiful, mobile-first note-taking application built with Next.js, TypeScript, Tailwind CSS, and React Markdown. Experience the tactile feel of physical cards in a digital environment.
+A beautiful, mobile-first note-taking application built with Next.js, TypeScript, Tailwind CSS, and React Markdown. Experience the tactile feel of physical cards in a digital environment with true local-first architecture.
 
 ## Features
 
 - 📱 **Mobile-First Design** - Optimized for phone screens with full-screen cards
+- 💾 **Local-First Architecture** - All data stored locally with automatic persistence
 - 📝 **Markdown Support** - Write in markdown, see it rendered beautifully
 - 🎨 **Skeuomorphic Card Design** - Cards that feel like real paper with subtle shadows
 - 📚 **Vertical Card Stack** - Scroll through multiple notes vertically
 - 🎭 **Fade Mask Effect** - Elegant overflow indication without scrollbars
 - ✏️ **Embedded Edit Buttons** - Edit button integrated within each card header
 - 🧭 **Note Detail Pages** - Full-screen note viewing with navigation
+- 🔄 **Real-time Sync** - Seamless data synchronization between pages
+- 📱 **Offline-Capable** - Works completely offline with localStorage persistence
 - ⚡ **Performance Optimized** - Lightweight and fast with minimal dependencies
 - 🧪 **Test-Driven Development** - Comprehensive test coverage with Vitest
 - 🚀 **Next.js 15** - Latest App Router with TypeScript
@@ -99,12 +102,32 @@ The app includes 4 diverse sample notes:
 - **Meeting Notes**: Professional content with structured formatting
 - **Recipe Ideas**: Creative content with emojis and lists
 
+## Design Philosophy
+
+### Mobile-First & Local-First Principles
+
+- **Mobile-First Design**: Every interface decision prioritizes mobile usability and touch interactions
+- **Local-First Architecture**: Your data belongs to you - stored locally with automatic persistence
+- **Content-Focused**: Clean, distraction-free interface that puts your writing first
+- **Offline-Capable**: Works completely without internet connection
+- **Privacy-Conscious**: No cloud dependencies, no tracking, no data collection
+- **Performance-Optimized**: Instant loading, smooth animations, efficient rendering
+
+### Data Architecture
+
+- **Automatic Persistence**: All notes automatically saved to localStorage on first load
+- **Consistent Format**: Standardized data structure for reliable access
+- **Graceful Fallback**: Mock data initialization when localStorage is empty
+- **Real-time Sync**: Seamless updates between main page and detail views
+- **Error Recovery**: Robust error handling with automatic fallback strategies
+
 ## Tech Stack
 
 - **Framework**: Next.js 15 with App Router
 - **Language**: TypeScript for type safety
 - **Styling**: Tailwind CSS for utility-first styling
 - **Content**: React Markdown with remark-gfm for GitHub Flavored Markdown
+- **Storage**: Browser localStorage for local-first persistence
 - **Testing**: Vitest + React Testing Library
 - **Package Manager**: pnpm for efficient dependency management
 
