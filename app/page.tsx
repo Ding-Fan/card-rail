@@ -2,15 +2,28 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from '../components/Card';
-import { getAllMockNotes } from '../data/mockNotes';
+import { useNotes } from '../lib/useNotes';
 
 export default function Home() {
-  const notes = getAllMockNotes();
+  const { notes, isLoading, refreshNotes } = useNotes();
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Touch/swipe state
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
+
+  // Refresh notes when component mounts or becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // Page became visible, refresh notes
+        refreshNotes();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [refreshNotes]);
 
   // Handle scroll to update current card index
   useEffect(() => {
@@ -70,14 +83,27 @@ export default function Home() {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {notes.map((note) => (
-          <div key={note.id} className="p-4 flex-shrink-0">
-            <Card 
-              note={note} 
-              onTap={handleCardTap}
-            />
+        {isLoading ? (
+          // Loading state
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-gray-500">Loading notes...</div>
           </div>
-        ))}
+        ) : notes.length === 0 ? (
+          // Empty state
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-gray-500">No notes yet. Create your first note!</div>
+          </div>
+        ) : (
+          // Notes list
+          notes.map((note) => (
+            <div key={note.id} className="p-4 flex-shrink-0">
+              <Card 
+                note={note} 
+                onTap={handleCardTap}
+              />
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

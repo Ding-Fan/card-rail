@@ -96,6 +96,20 @@ Just a simple note to test the card display.
 ];
 
 export const getMockNote = (id: string): Note | undefined => {
+  // First check localStorage for updated notes
+  try {
+    const savedNotes = localStorage.getItem('card-rail-notes');
+    if (savedNotes) {
+      const parsedNotes = JSON.parse(savedNotes);
+      if (parsedNotes[id]) {
+        return parsedNotes[id];
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load note from localStorage:', error);
+  }
+  
+  // Fallback to mock data
   return mockNotes.find(note => note.id === id);
 };
 

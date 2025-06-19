@@ -48,6 +48,9 @@ export default function NoteClient({ note, noteId }: NoteClientProps) {
       };
       localStorage.setItem('card-rail-notes', JSON.stringify(savedNotes));
       setSaveStatus('saved');
+      
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new CustomEvent('notes-updated'));
     }, 2000);
 
     return () => clearTimeout(timeoutId);
