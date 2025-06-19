@@ -17,6 +17,14 @@ A beautiful, mobile-first note-taking application built with Next.js, TypeScript
 
 ## Getting Started
 
+### Prerequisites
+
+This project uses **pnpm** as the package manager for faster and more efficient dependency management. Install pnpm if you haven't already:
+
+```bash
+npm install -g pnpm
+```
+
 ### 1. Install Dependencies
 
 ```bash
@@ -27,6 +35,24 @@ pnpm install
 
 ```bash
 pnpm dev
+```
+
+### 3. Available Scripts
+
+```bash
+# Development
+pnpm dev          # Start development server with Turbopack
+pnpm build        # Build for production
+pnpm start        # Start production server
+
+# Testing
+pnpm test         # Run tests in watch mode
+pnpm test:run     # Run tests once
+pnpm test:watch   # Run tests in watch mode (explicit)
+pnpm test:coverage # Run tests with coverage report
+
+# Code Quality
+pnpm lint         # Run ESLint and Next.js linting
 ```
 
 Open [http://localhost:3000](http://localhost:3000) on your mobile device or browser's mobile view.

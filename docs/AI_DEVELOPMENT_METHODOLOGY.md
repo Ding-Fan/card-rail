@@ -139,6 +139,10 @@ pnpm test
 
 # Real-time preview
 pnpm dev
+
+# Package management
+pnpm install    # Install dependencies
+pnpm add <pkg>  # Add new package
 ```
 
 ### **Documentation Tools**

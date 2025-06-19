@@ -23,6 +23,14 @@ A beautiful, Instagram Stories-inspired note-taking application built with Next.
 
 ## Getting Started
 
+### Prerequisites
+
+This project uses **pnpm** as the package manager. Install pnpm if you haven't already:
+
+```bash
+npm install -g pnpm
+```
+
 ### 1. Install Dependencies
 
 ```bash

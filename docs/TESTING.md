@@ -33,13 +33,13 @@ lib/
 
 ```bash
 # Run all tests once
-pnpm test:run
+pnpm test
 
 # Run tests in watch mode (for TDD)
 pnpm test:watch
 
 # Run specific test file
-pnpm test:run components/Card.test.tsx
+pnpm test components/Card.test.tsx
 
 # Run tests with coverage
 pnpm test:coverage

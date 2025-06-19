@@ -1,8 +1,8 @@
 # Card Rail - Project Status
 
 **Current Version**: 0.1.0  
-**Last Updated**: June 17, 2025  
-**Status**: Simplified Card Stream Complete
+**Last Updated**: June 19, 2025  
+**Status**: Note Detail Page Optimized
 
 ---
 
@@ -45,6 +45,7 @@
 - **Test-Driven Development**: 25/25 tests passing with comprehensive coverage
 - **TypeScript**: Full type safety with strict mode enabled
 - **Modern Tooling**: Next.js 15, Vitest, React Testing Library
+- **Package Manager**: pnpm for efficient dependency management
 - **Performance**: Lightweight implementation (148kB bundle size)
 
 ---
