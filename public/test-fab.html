@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAB Position Test</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+      }
+      .info {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin: 5px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      .fab-simulator {
+        position: fixed;
+        width: 80px;
+        height: 40px;
+        background: #f5f5f0;
+        border: 1px solid #d6d3d1;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .socket-slots {
+        display: flex;
+        gap: 12px;
+      }
+      .slot {
+        width: 4px;
+        height: 24px;
+        background: black;
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="info">
+      <h2>FAB Position Test Tool</h2>
+      <p><strong>Viewport:</strong> <span id="viewport">Loading...</span></p>
+      <p>
+        <strong>Golden Ratio Point:</strong> <span id="golden">Loading...</span>
+      </p>
+      <p>
+        <strong>Expected FAB Position:</strong>
+        <span id="expected">Loading...</span>
+      </p>
+      <p>
+        <strong>Actual FAB Position:</strong>
+        <span id="actual">Click "Show FAB" to see</span>
+      </p>
+    </div>
+
+    <button class="button" onclick="showFAB()">
+      Show FAB at Golden Position
+    </button>
+    <button class="button" onclick="clearFAB()">Clear FAB</button>
+    <button class="button" onclick="clearLocalStorage()">
+      Clear localStorage
+    </button>
+
+    <div id="fab" class="fab-simulator" style="display: none">
+      <div class="socket-slots">
+        <div class="slot"></div>
+        <div class="slot"></div>
+      </div>
+    </div>
+
+    <script>
+      const goldenRatio = 0.618;
+      const fabWidth = 80;
+      const fabHeight = 40;
+      const padding = 20;
+
+      function updateInfo() {
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        const goldenPoint = viewportHeight * (1 - goldenRatio);
+
+        document.getElementById(
+          "viewport"
+        ).textContent = `${viewportWidth}x${viewportHeight}`;
+        document.getElementById("golden").textContent = `${goldenPoint.toFixed(
+          1
+        )}px from top (${((1 - goldenRatio) * 100).toFixed(1)}%)`;
+
+        const expectedX = viewportWidth - fabWidth - padding;
+        const expectedY = goldenPoint;
+        document.getElementById(
+          "expected"
+        ).textContent = `x=${expectedX}, y=${expectedY.toFixed(1)}`;
+      }
+
+      function showFAB() {
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        const goldenPoint = viewportHeight * (1 - goldenRatio);
+
+        const fab = document.getElementById("fab");
+        const x = viewportWidth - fabWidth - padding;
+        const y = goldenPoint;
+
+        fab.style.left = x + "px";
+        fab.style.top = y + "px";
+        fab.style.display = "flex";
+
+        document.getElementById("actual").textContent = `x=${x}, y=${y.toFixed(
+          1
+        )}`;
+      }
+
+      function clearFAB() {
+        document.getElementById("fab").style.display = "none";
+        document.getElementById("actual").textContent = "FAB hidden";
+      }
+
+      function clearLocalStorage() {
+        localStorage.removeItem("fab-position");
+        alert(
+          "localStorage cleared! The real FAB will use default position on next load."
+        );
+      }
+
+      // Update info on load and resize
+      updateInfo();
+      window.addEventListener("resize", updateInfo);
+    </script>
+  </body>
+</html>

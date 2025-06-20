@@ -12,6 +12,23 @@ vi.mock('next/navigation', () => ({
   }),
 }))
 
+// Mock useNotes hook
+const mockUpdateNote = vi.fn()
+const mockDeleteNote = vi.fn()
+const mockHasUserContent = vi.fn()
+
+vi.mock('../../../lib/useNotes', () => ({
+  useNotes: () => ({
+    updateNote: mockUpdateNote,
+    deleteNote: mockDeleteNote,
+    hasUserContent: mockHasUserContent,
+    notes: [],
+    isLoading: false,
+    refreshNotes: vi.fn(),
+    createNote: vi.fn(),
+  }),
+}))
+
 // Mock localStorage
 const localStorageMock = {
   getItem: vi.fn(() => '{}'),
@@ -32,6 +49,7 @@ describe('Note Detail Page', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     localStorageMock.getItem.mockReturnValue('{}')
+    mockHasUserContent.mockReturnValue(true)
   })
 
   it('should render note title and content', () => {
@@ -120,11 +138,11 @@ describe('Note Detail Page', () => {
       vi.advanceTimersByTime(2000)
     })
     
-    // Should have saved to localStorage
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
-      'card-rail-notes',
-      expect.stringContaining('Updated Note')
-    )
+    // Should have called updateNote from useNotes hook
+    expect(mockUpdateNote).toHaveBeenCalledWith('1', {
+      content: '# Updated Note\n\nUpdated content.',
+      title: 'Updated Note'
+    })
     
     vi.useRealTimers()
   })

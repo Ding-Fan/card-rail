@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAB Debug Tool</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+      }
+      .debug-panel {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 15px 25px;
+        border-radius: 8px;
+        margin: 10px 5px;
+        font-size: 16px;
+        cursor: pointer;
+        display: block;
+        width: 100%;
+        max-width: 300px;
+      }
+      .danger {
+        background: #dc3545;
+      }
+      .success {
+        background: #28a745;
+      }
+      .info {
+        background: #17a2b8;
+      }
+      .output {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        margin: 10px 0;
+        font-family: monospace;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="debug-panel">
+      <h2>🔧 FAB Position Debug Tool</h2>
+      <p>Use this tool to debug and fix the FAB positioning issue on mobile.</p>
+
+      <button class="button info" onclick="checkCurrentPosition()">
+        📍 Check Current Position
+      </button>
+      <button class="button danger" onclick="clearPosition()">
+        🗑️ Clear Saved Position
+      </button>
+      <button class="button success" onclick="setGoldenPosition()">
+        ✨ Set Golden Ratio Position
+      </button>
+      <button class="button" onclick="goToApp()">🏠 Go to App</button>
+
+      <div id="output" class="output">
+        Click a button to see debug information...
+      </div>
+    </div>
+
+    <script>
+      const goldenRatio = 0.618;
+      const fabWidth = 80;
+      const fabHeight = 40;
+      const padding = 20;
+
+      function updateOutput(text) {
+        document.getElementById("output").textContent = text;
+      }
+
+      function checkCurrentPosition() {
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        const saved = localStorage.getItem("fab-position");
+
+        let output = `🔍 VIEWPORT INFO:\n`;
+        output += `Width: ${viewportWidth}px\n`;
+        output += `Height: ${viewportHeight}px\n\n`;
+
+        output += `🎯 GOLDEN RATIO CALCULATION:\n`;
+        const goldenY = viewportHeight * (1 - goldenRatio);
+        const expectedX = viewportWidth - fabWidth - padding;
+        output += `Golden point Y: ${goldenY.toFixed(1)}px (${(
+          (1 - goldenRatio) *
+          100
+        ).toFixed(1)}% from top)\n`;
+        output += `Expected X: ${expectedX}px (right edge with ${padding}px padding)\n`;
+        output += `Expected position: {x: ${expectedX}, y: ${goldenY.toFixed(
+          1
+        )}}\n\n`;
+
+        output += `💾 LOCALSTORAGE INFO:\n`;
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            output += `Saved position: ${JSON.stringify(parsed)}\n`;
+            output += `This is why FAB appears at saved location!\n`;
+          } catch (e) {
+            output += `Saved data is corrupted: ${saved}\n`;
+          }
+        } else {
+          output += `No saved position found.\n`;
+          output += `FAB should use golden ratio position.\n`;
+        }
+
+        updateOutput(output);
+      }
+
+      function clearPosition() {
+        localStorage.removeItem("fab-position");
+        updateOutput(
+          `✅ SUCCESS!\n\nCleared saved FAB position from localStorage.\n\nNow go back to the app and the FAB should appear at the golden ratio position!\n\nRefresh the main app page to see the change.`
+        );
+      }
+
+      function setGoldenPosition() {
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        const goldenPos = {
+          x: viewportWidth - fabWidth - padding,
+          y: viewportHeight * (1 - goldenRatio),
+        };
+
+        localStorage.setItem("fab-position", JSON.stringify(goldenPos));
+        updateOutput(
+          `✅ SUCCESS!\n\nSet FAB position to golden ratio:\n${JSON.stringify(
+            goldenPos
+          )}\n\nNow go back to the app and the FAB should appear at the correct position!`
+        );
+      }
+
+      function goToApp() {
+        window.location.href = "/";
+      }
+
+      // Auto-check position on load
+      window.addEventListener("load", checkCurrentPosition);
+    </script>
+  </body>
+</html>

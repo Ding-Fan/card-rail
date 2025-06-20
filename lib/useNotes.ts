@@ -125,15 +125,14 @@ export function useNotes() {
     }
   };
 
-  // Create a new note with auto-generated timestamp title
+  // Create a new note (without auto-generated content - will be added by UI)
   const createNote = (): string => {
     const now = new Date();
-    const timestamp = now.toLocaleString(); // e.g., "6/19/2025, 10:30:00 AM"
     
     const newNote: Note = {
       id: `note-${Date.now()}`, // Simple ID generation
-      title: timestamp,
-      content: `# ${timestamp}\n\n`, // Auto-generated header
+      title: 'New Note',
+      content: '', // Start with empty content
       created_at: now.toISOString(),
       updated_at: now.toISOString()
     };
@@ -252,26 +251,6 @@ export function useNotes() {
     }
   };
 
-  // Check if note has content beyond auto-generated header
-  const hasUserContent = (note: Note): boolean => {
-    const timestamp = note.title;
-    const expectedHeader = `# ${timestamp}\n\n`;
-    
-    // If content is exactly the auto-generated header, no user content
-    if (note.content === expectedHeader) {
-      return false;
-    }
-    
-    // If content starts with the header but has more, user added content
-    if (note.content.startsWith(expectedHeader)) {
-      const userContent = note.content.slice(expectedHeader.length).trim();
-      return userContent.length > 0;
-    }
-    
-    // Content doesn't match expected pattern, assume user content exists
-    return true;
-  };
-
   return {
     notes,
     isLoading,
@@ -279,6 +258,5 @@ export function useNotes() {
     createNote,
     updateNote,
     deleteNote,
-    hasUserContent,
   };
 }

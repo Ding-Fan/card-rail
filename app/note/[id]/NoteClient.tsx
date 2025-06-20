@@ -15,7 +15,7 @@ interface NoteClientProps {
 
 export default function NoteClient({ note, noteId }: NoteClientProps) {
   const router = useRouter();
-  const { updateNote, deleteNote, hasUserContent } = useNotes();
+  const { updateNote } = useNotes();
   const [isEditMode, setIsEditMode] = useState(false);
   const [content, setContent] = useState(note.content);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'idle'>('saved');
@@ -57,21 +57,14 @@ export default function NoteClient({ note, noteId }: NoteClientProps) {
     setContent(note.content);
   }, [note.content]);
 
-  // Handle navigation back with smart save/delete logic
+  // Handle navigation back
   const handleBack = () => {
-    const noteToCheck = { ...note, content };
-    
-    // If note has no user content beyond auto-generated header, delete it
-    if (!hasUserContent(noteToCheck)) {
-      deleteNote(noteId);
-    } else {
-      // Save any pending changes before leaving
-      if (content !== note.content) {
-        updateNote(noteId, {
-          content,
-          title: getTitle(content)
-        });
-      }
+    // Save any pending changes before leaving
+    if (content !== note.content) {
+      updateNote(noteId, {
+        content,
+        title: getTitle(content)
+      });
     }
     
     router.back();

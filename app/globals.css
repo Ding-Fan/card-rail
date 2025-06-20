@@ -42,3 +42,24 @@ body {
 .shadow-lg {
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
+
+/* Prevent pull-to-refresh interference with draggable FAB */
+html,
+body {
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Additional mobile browser behavior prevention */
+* {
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ensure FAB dragging doesn't trigger browser gestures */
+[data-testid="draggable-fab"] {
+  touch-action: none !important;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}

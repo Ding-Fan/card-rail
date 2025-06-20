@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quick FAB Fix</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        text-align: center;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin: 20px auto;
+        max-width: 400px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 15px 25px;
+        border-radius: 8px;
+        margin: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        width: 100%;
+        max-width: 300px;
+      }
+      .danger {
+        background: #dc3545;
+      }
+      .success {
+        background: #28a745;
+      }
+      .warning {
+        background: #ffc107;
+        color: #000;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 20px;
+      }
+      p {
+        color: #666;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔧 FAB Quick Fix</h1>
+      <p>If the FAB is at the top-left corner, use these tools to fix it:</p>
+
+      <button class="button danger" onclick="clearAndReload()">
+        🗑️ Clear Position & Reload
+      </button>
+      <button class="button success" onclick="forceGoldenPosition()">
+        ✨ Force Golden Position
+      </button>
+      <button class="button warning" onclick="showDebugInfo()">
+        📍 Show Debug Info
+      </button>
+      <button class="button" onclick="goToApp()">🏠 Go to Main App</button>
+    </div>
+
+    <script>
+      const goldenRatio = 0.618;
+      const fabWidth = 80;
+      const fabHeight = 40;
+      const padding = 20;
+
+      function clearAndReload() {
+        localStorage.removeItem("fab-position");
+        alert("✅ Cleared FAB position!\n\nNow going to main app...");
+        window.location.href = "/";
+      }
+
+      function forceGoldenPosition() {
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        const goldenPos = {
+          x: viewportWidth - fabWidth - padding,
+          y: viewportHeight * (1 - goldenRatio),
+        };
+
+        localStorage.setItem("fab-position", JSON.stringify(goldenPos));
+        alert(
+          `✅ Forced golden position!\n\nPosition: x=${
+            goldenPos.x
+          }, y=${goldenPos.y.toFixed(1)}\n\nNow going to main app...`
+        );
+        window.location.href = "/";
+      }
+
+      function showDebugInfo() {
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        const saved = localStorage.getItem("fab-position");
+        const goldenY = viewportHeight * (1 - goldenRatio);
+        const expectedX = viewportWidth - fabWidth - padding;
+
+        let info = `📱 VIEWPORT: ${viewportWidth}x${viewportHeight}\n\n`;
+        info += `🎯 EXPECTED POSITION:\nx=${expectedX}, y=${goldenY.toFixed(
+          1
+        )}\n\n`;
+        info += `💾 SAVED POSITION:\n${saved || "None"}\n\n`;
+        info += `📏 Golden ratio: ${((1 - goldenRatio) * 100).toFixed(
+          1
+        )}% from top`;
+
+        alert(info);
+      }
+
+      function goToApp() {
+        window.location.href = "/";
+      }
+    </script>
+  </body>
+</html>

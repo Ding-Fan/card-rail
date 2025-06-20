@@ -2,6 +2,10 @@
 
 import { DraggableFAB } from './DraggableFAB';
 
-export function GlobalFAB() {
-  return <DraggableFAB />;
+interface GlobalFABProps {
+  onCreateNote?: () => void;
+}
+
+export function GlobalFAB({ onCreateNote }: GlobalFABProps = {}) {
+  return <DraggableFAB onCreateNote={onCreateNote} />;
 }

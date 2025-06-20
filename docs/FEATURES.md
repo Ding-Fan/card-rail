@@ -1,5 +1,5 @@
 # Card Rail```
-✅ Implemented: 16 features
+✅ Implemented: 18 features
 🚧 In Progress: 0 features  
 📋 Planned: 4 features
 💭 Ideas: 5 features
@@ -8,7 +8,7 @@ Package Manager: pnpm
 ## GitHub-Style Issue Tracking for Development
 
 **Project**: Card Rail - Minimalist Mobile Note App  
-**Last Updated**: June 19, 2025  
+**Last Updated**: June 20, 2025  
 **Repository**: [card-rail](https://github.com/user/card-rail)  
 
 ---
@@ -16,9 +16,9 @@ Package Manager: pnpm
 ## 🎯 **Feature Status Overview**
 
 ```
-✅ Implemented: 14 features
+✅ Implemented: 19 features
 🚧 In Progress: 0 features  
-📋 Planned: 7 features
+📋 Planned: 4 features
 💭 Ideas: 5 features
 Package Manager: pnpm
 ```
@@ -101,6 +101,36 @@ Package Manager: pnpm
 - **Impact**: Consistent mobile experience without confusing hover states
 - **Changes**: Removed hover effects from edit buttons, navigation buttons, and links
 - **Benefits**: True mobile-first design without desktop-only interactions
+
+#### **#018 - Global Draggable FAB**
+- **Status**: ✅ Completed
+- **Description**: Global floating action button for note creation with drag-and-drop positioning
+- **Implementation**: Root layout integration with @dnd-kit/core for mature drag-and-drop
+- **Features**: 
+  - Japanese wall socket aesthetic (thin vertical slots `w-1 h-6` in stone-colored rounded rectangle)
+  - Compact design (`w-20 h-10`) for mobile-friendly interaction
+  - Free positioning anywhere on screen (no edge snapping)
+  - Golden spiral default positioning (φ ratio for visual harmony)
+  - Position persistence across sessions via localStorage
+  - Smart viewport constraints (prevents going off-screen)
+  - Ultra-responsive dragging (50ms touch delay, 5px movement threshold)
+  - Multi-sensor support (Mouse, Touch, Pointer for cross-browser compatibility)
+- **Architecture**: GlobalFAB wrapper → DraggableFAB → DndContext → DraggableFABButton
+- **UX**: Drag to reposition, click to create note, global availability on all pages
+- **Mobile**: Optimized touch sensors with minimal delay for immediate drag response
+- **Tests**: 9/9 passing for positioning, drag behavior, and interaction
+
+#### **#019 - Smart Note Creation System**
+- **Status**: ✅ Completed
+- **Description**: Intelligent note creation with auto-generated timestamp headers and smart save logic
+- **Implementation**: Enhanced useNotes hook with createNote, updateNote, deleteNote functions
+- **Features**:
+  - Auto-generated timestamp headers (`# 6/19/2025, 10:30:00 AM`)
+  - Smart content detection (saves only if content beyond header exists)
+  - Automatic note deletion for empty notes
+  - `/note/new` route with immediate redirection to edit mode
+- **Content Logic**: Detects user content beyond auto-generated header for save/delete decisions
+- **Integration**: Seamless with existing auto-save and localStorage persistence
 
 ### **Development Infrastructure**
 

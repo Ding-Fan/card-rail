@@ -43,9 +43,14 @@ describe('DraggableFAB', () => {
     expect(fab).toBeInTheDocument();
     expect(fab).toHaveAttribute('aria-label', 'Add new note');
     
-    // Should have two black squares (Japanese socket design)
-    const blackSquares = fab.querySelectorAll('div.bg-black');
-    expect(blackSquares).toHaveLength(2);
+    // Should have two tall black rectangles (Japanese socket design)
+    const blackRectangles = fab.querySelectorAll('div.bg-black');
+    expect(blackRectangles).toHaveLength(2);
+    
+    // Verify they are thin tall rectangles (w-1 h-6)
+    blackRectangles.forEach(rect => {
+      expect(rect).toHaveClass('w-1', 'h-6');
+    });
   });
 
   it('should have proper styling for bagel rounded background with stone border', () => {
@@ -112,8 +117,8 @@ describe('DraggableFAB', () => {
     render(<DraggableFAB />);
     
     const fab = screen.getByTestId('draggable-fab');
-    expect(fab).toHaveClass('w-14'); // 56px
-    expect(fab).toHaveClass('h-14'); // 56px
+    expect(fab).toHaveClass('w-20'); // 80px width
+    expect(fab).toHaveClass('h-10'); // 40px height  
     expect(fab).toHaveClass('select-none'); // Non-selectable for touch
   });
 });
