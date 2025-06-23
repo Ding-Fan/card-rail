@@ -67,7 +67,7 @@ describe('Card Component - Edit Button', () => {
     const editButton = screen.getByTestId('edit-button')
     fireEvent.click(editButton)
     
-    expect(mockPush).toHaveBeenCalledWith('/note/1')
+    expect(mockPush).toHaveBeenCalledWith('/note/1?edit=true')
   })
 
   it('should stop event propagation on edit button click', () => {
@@ -79,7 +79,7 @@ describe('Card Component - Edit Button', () => {
     
     // Card onTap should not be called when edit button is clicked
     expect(onTap).not.toHaveBeenCalled()
-    expect(mockPush).toHaveBeenCalledWith('/note/1')
+    expect(mockPush).toHaveBeenCalledWith('/note/1?edit=true')
   })
 
   it('should be accessible with proper ARIA labels', () => {

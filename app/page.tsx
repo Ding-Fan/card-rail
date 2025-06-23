@@ -1,12 +1,17 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card } from '../components/Card';
 import { useNotes } from '../lib/useNotes';
 
 export default function Home() {
-  const { notes, isLoading, refreshNotes } = useNotes();
+  const router = useRouter();
+  const { isLoading, refreshNotes, getTopLevelNotes, getChildNotes } = useNotes();
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Get only top-level notes (no parent)
+  const topLevelNotes = getTopLevelNotes();
   
   // Touch/swipe state
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
@@ -32,7 +37,7 @@ export default function Home() {
 
   const handleCardTap = (noteId: string) => {
     console.log('Card tapped:', noteId);
-    // TODO: Navigate to edit page
+    router.push(`/note/${noteId}`);
   };
 
   // Handle touch events for swipe gestures
@@ -88,18 +93,20 @@ export default function Home() {
           <div className="flex items-center justify-center min-h-screen">
             <div className="text-gray-500">Loading notes...</div>
           </div>
-        ) : notes.length === 0 ? (
+        ) : topLevelNotes.length === 0 ? (
           // Empty state
           <div className="flex items-center justify-center min-h-screen">
             <div className="text-gray-500">No notes yet. Create your first note!</div>
           </div>
         ) : (
           // Notes list
-          notes.map((note) => (
+          topLevelNotes.map((note) => (
             <div key={note.id} className="p-4 flex-shrink-0">
               <Card 
                 note={note} 
                 onTap={handleCardTap}
+                childCount={getChildNotes(note.id).length}
+                showNestedIcon={true}
               />
             </div>
           ))

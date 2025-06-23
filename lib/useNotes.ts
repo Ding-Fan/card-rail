@@ -251,6 +251,124 @@ export function useNotes() {
     }
   };
 
+  // Get child notes for a specific parent
+  const getChildNotes = (parentId: string): Note[] => {
+    return notes.filter(note => note.parent_id === parentId);
+  };
+
+  // Get top-level notes (no parent)
+  const getTopLevelNotes = (): Note[] => {
+    return notes.filter(note => !note.parent_id);
+  };
+
+  // Create a nested note with a parent
+  const createNestedNote = (parentId: string, initialContent: string = ''): string => {
+    const timestamp = new Date().toISOString();
+    const newId = `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    const newNote: Note = {
+      id: newId,
+      title: '',
+      content: initialContent,
+      created_at: timestamp,
+      updated_at: timestamp,
+      parent_id: parentId
+    };
+
+    try {
+      const savedNotes = localStorage.getItem(STORAGE_KEY);
+      let notesObject: Record<string, Note> = {};
+      
+      if (savedNotes) {
+        const parsedNotes = JSON.parse(savedNotes);
+        if (typeof parsedNotes === 'object' && !Array.isArray(parsedNotes)) {
+          notesObject = parsedNotes;
+        } else {
+          // Convert array to object format
+          notesObject = parsedNotes.reduce((acc: Record<string, Note>, note: Note) => {
+            acc[note.id] = note;
+            return acc;
+          }, {});
+        }
+      }
+      
+      notesObject[newId] = newNote;
+      
+      // Save to localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(notesObject));
+      
+      // Update state
+      const noteArray = Object.values(notesObject) as Note[];
+      setNotes(noteArray);
+      
+      // Dispatch custom event for cross-component updates
+      window.dispatchEvent(new CustomEvent('notes-updated'));
+      
+      return newId;
+    } catch (error) {
+      console.error('Failed to create nested note:', error);
+      return newId; // Return ID even if save failed
+    }
+  };
+
+  // Delete a note and all its children recursively
+  const deleteNoteWithChildren = (id: string) => {
+    try {
+      const savedNotes = localStorage.getItem(STORAGE_KEY);
+      if (!savedNotes) return;
+      
+      const parsedNotes = JSON.parse(savedNotes);
+      let notesObject: Record<string, Note> = {};
+      
+      if (typeof parsedNotes === 'object' && !Array.isArray(parsedNotes)) {
+        notesObject = parsedNotes;
+      } else {
+        // Convert array to object format
+        notesObject = parsedNotes.reduce((acc: Record<string, Note>, note: Note) => {
+          acc[note.id] = note;
+          return acc;
+        }, {});
+      }
+      
+      // Find all children recursively
+      const findAllChildren = (parentId: string): string[] => {
+        const directChildren = Object.values(notesObject)
+          .filter(note => note.parent_id === parentId)
+          .map(note => note.id);
+        
+        const allChildren = [...directChildren];
+        for (const childId of directChildren) {
+          allChildren.push(...findAllChildren(childId));
+        }
+        
+        return allChildren;
+      };
+      
+      // Delete the note and all its children
+      const toDelete = [id, ...findAllChildren(id)];
+      toDelete.forEach(noteId => {
+        delete notesObject[noteId];
+      });
+      
+      // Save to localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(notesObject));
+      
+      // Update state
+      const noteArray = Object.values(notesObject) as Note[];
+      setNotes(noteArray);
+      
+      // Dispatch custom event for cross-component updates
+      window.dispatchEvent(new CustomEvent('notes-updated'));
+    } catch (error) {
+      console.error('Failed to delete note with children:', error);
+    }
+  };
+
+  // Get a note by ID
+  const getNoteById = (id: string): Note | undefined => {
+    return notes.find(note => note.id === id);
+  };
+
   return {
     notes,
     isLoading,
@@ -258,5 +376,10 @@ export function useNotes() {
     createNote,
     updateNote,
     deleteNote,
+    getChildNotes,
+    getTopLevelNotes,
+    createNestedNote,
+    deleteNoteWithChildren,
+    getNoteById,
   };
 }

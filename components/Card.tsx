@@ -10,9 +10,11 @@ import { useCardHeight, CARD_HEIGHT_RATIOS } from '../lib/cardHeight';
 interface CardProps {
   note: Note;
   onTap?: (noteId: string) => void;
+  childCount?: number; // Number of child notes
+  showNestedIcon?: boolean; // Whether to show the nested notes icon
 }
 
-export const Card: React.FC<CardProps> = ({ note, onTap }) => {
+export const Card: React.FC<CardProps> = ({ note, onTap, childCount = 0, showNestedIcon = true }) => {
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
   const [isAnimated, setIsAnimated] = React.useState(false);
@@ -42,6 +44,12 @@ export const Card: React.FC<CardProps> = ({ note, onTap }) => {
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card tap event
+    router.push(`/note/${note.id}?edit=true`);
+  };
+
+  const handleNestedClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card tap event
+    // Navigate to the infinite nesting route instead of the legacy nested route
     router.push(`/note/${note.id}`);
   };
 
@@ -140,6 +148,40 @@ export const Card: React.FC<CardProps> = ({ note, onTap }) => {
           className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"
         />
       </div>
+
+      {/* Nested Notes Navigation Icon */}
+      {showNestedIcon && (
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
+          <button
+            data-testid="nested-notes-button"
+            onClick={handleNestedClick}
+            aria-label={`View nested notes (${childCount} child notes)`}
+            role="button"
+            className="w-8 h-8 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 transition-all duration-200 flex items-center justify-center group"
+          >
+            <svg
+              data-testid="nested-icon"
+              className="w-4 h-4 transition-transform duration-200 group-hover:scale-110"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+            {childCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                {childCount > 9 ? '9+' : childCount}
+              </span>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 };
