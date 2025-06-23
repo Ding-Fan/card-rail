@@ -1,30 +1,32 @@
 # Card Rail - Minimalist Mobile Note App
 
-A beautiful, Instagram Stories-inspired note-taking application built with Next.js, TypeScript, and Tailwind CSS. Experience clean, distraction-free vertical scrolling through your notes with true local-first architecture.
+A beautiful, Instagram Stories-inspired note-taking application built with Next.js, TypeScript, and Tailwind CSS. Experience clean, distraction-free vertical scrolling through your notes with advanced archive functionality and local-first architecture.
 
 ## Features
 
 - 📱 **Mobile-First Design** - Optimized for vertical scrolling like social media stories
 - 💾 **Local-First Architecture** - All data stored locally with automatic persistence
 - 📝 **Markdown Support** - Write in markdown, see it rendered beautifully
-- 🎨 **Minimalist Card Design** - Clean cards with subtle shadows and animations
+- 🎨 **Enhanced Card UI** - 3-dot menu system with drawer-style interactions
 - 📚 **Vertical Card Stream** - Smooth scrolling through notes with snap-to-card behavior
-- 🎭 **Floating Edit Button** - Small, subtle edit button that doesn't interfere with content
+- 🗃️ **Note Archiving** - Complete archive workflow with confirmation and dedicated archive page
+- 🎯 **Draggable FAB** - Persistent floating action button with customizable positioning
 - 🧭 **Enhanced Navigation** - Scroll indicators, touch gestures, and smooth animations
 - 🔄 **Real-time Data Sync** - Seamless synchronization between pages
 - 📱 **Offline-Capable** - Works completely offline with localStorage persistence
-- ⚡ **Performance Optimized** - Lightweight 148kB bundle with CSS-only animations
-- 🧪 **Test-Driven Development** - 25/25 tests passing with comprehensive coverage
+- ⚡ **Performance Optimized** - Lightweight ~150kB bundle with CSS-only animations
+- 🧪 **Test-Driven Development** - 80+ tests passing with comprehensive TDD coverage
 - 🚀 **Next.js 15** - Latest App Router with TypeScript
 
 ## Key Design Principles
 
-- **Content First**: Content takes full card space with floating edit controls
+- **Content First**: Content takes full card space with contextual action menus
 - **Local First**: Your data belongs to you - stored locally with automatic persistence
 - **Mobile First**: Every interface decision prioritizes mobile usability
-- **Gesture Driven**: Vertical swipe gestures for natural navigation
-- **Visual Feedback**: Entry animations and scroll indicators for orientation
-- **Distraction Free**: No search bars or view toggles, just pure content flow
+- **Gesture Driven**: Touch-optimized interactions and natural navigation patterns
+- **Visual Feedback**: Smooth animations and confirmation dialogs for user clarity
+- **Archive System**: Hide notes from main view while preserving them safely
+- **Distraction Free**: Clean interface focused on content consumption and creation
 - **Offline Capable**: No internet required, no cloud dependencies
 
 ## Getting Started
@@ -162,3 +164,23 @@ This ensures all feature development is properly tracked and requirements are va
 ## Contributing
 
 Feel free to open issues and pull requests to improve Card Rail!
+
+## Archive Functionality
+
+### Archiving Notes
+1. Click the **3-dot menu** in the bottom-right corner of any card
+2. Select **"Archive Note"** from the slide-up menu
+3. Confirm your choice in the confirmation bubble
+4. The note is immediately removed from the main view
+
+### Viewing Archived Notes
+1. Click the **FAB button** (Floating Action Button) in the top-right corner
+2. Select **"View Archive"** from the dropdown menu
+3. Browse all your archived notes with original relationship information
+
+### Archive Features
+- **Confirmation Dialog**: Preview note title before archiving
+- **Smart Positioning**: Confirmation bubble adapts to screen position
+- **Keyboard Support**: Use Escape key to cancel, Enter to confirm
+- **Auto-close**: Confirmation automatically closes after 10 seconds
+- **Relationship Tracking**: Archived notes remember their original parent

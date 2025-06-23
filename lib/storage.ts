@@ -13,6 +13,9 @@ export interface StorageUtils {
   getNote: (id: string) => Note | null
   setNote: (id: string, note: Note) => boolean
   removeNote: (id: string) => boolean
+  archiveNote: (id: string) => boolean
+  getArchivedNotes: () => Note[]
+  getActiveNotes: () => Note[]
   getFabPosition: () => { x: number; y: number } | null
   setFabPosition: (position: { x: number; y: number }) => boolean
   clearAll: () => void
@@ -99,6 +102,36 @@ class SafeStorage implements StorageUtils {
     
     delete notes[id]
     return this.setNotes(notes)
+  }
+
+  archiveNote(id: string): boolean {
+    const note = this.getNote(id)
+    if (!note) return false
+    
+    // Mark note as archived and store original parent info
+    const archivedNote: Note = {
+      ...note,
+      isArchived: true,
+      originalParentId: note.parent_id,
+      parent_id: undefined, // Remove parent relationship
+      updated_at: new Date().toISOString()
+    }
+    
+    return this.setNote(id, archivedNote)
+  }
+
+  getArchivedNotes(): Note[] {
+    const notes = this.getNotes()
+    if (!notes) return []
+    
+    return Object.values(notes).filter(note => note.isArchived)
+  }
+
+  getActiveNotes(): Note[] {
+    const notes = this.getNotes()
+    if (!notes) return []
+    
+    return Object.values(notes).filter(note => !note.isArchived)
   }
 
   getFabPosition(): { x: number; y: number } | null {

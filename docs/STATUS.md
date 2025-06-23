@@ -1,8 +1,8 @@
 # Card Rail - Project Status
 
 **Current Version**: 0.1.0  
-**Last Updated**: June 19, 2025  
-**Status**: Local-First Architecture Implemented
+**Last Updated**: June 23, 2025  
+**Status**: Archive Feature & UI/UX Improvements Completed
 
 ---
 
@@ -15,6 +15,28 @@
 - **Vertical Card Stream**: Clean, Instagram Stories-like vertical scrolling experience
 - **Minimalist Design**: Removed search bar and view mode toggles for focused experience
 - **Mobile-First Responsive**: Optimized layouts for phone screens (375px-428px)
+
+#### **Enhanced Card UI/UX**
+- **3-Dot Menu System**: Replaced floating edit button with drawer-style menu
+- **Card Actions Menu**: Edit and Archive options in slide-up drawer interface
+- **Visual Feedback**: Card dimming effect when menu is open
+- **Smooth Animations**: 300ms transitions for menu interactions
+- **Touch-Optimized**: Large touch targets and mobile-friendly interactions
+
+#### **Archive Functionality**
+- **Note Archiving**: Complete archive workflow with confirmation bubble
+- **Confirmation Dialog**: Contextual confirmation bubble with note preview
+- **Data Persistence**: localStorage-based archive state management
+- **Archive Page**: Dedicated page showing archived notes with "was belonged to" info
+- **Active Note Filtering**: Main page only shows non-archived notes
+- **Auto-Refresh**: UI updates immediately after archive actions
+
+#### **FAB (Floating Action Button) System**
+- **Draggable FAB**: Persistent floating action button with drag positioning
+- **Smart Positioning**: Default top-right placement with golden ratio positioning
+- **Menu Actions**: Add Note and View Archive options with text labels
+- **Position Persistence**: Saves user's preferred FAB position across sessions
+- **Mobile Optimized**: Touch-friendly with Japanese socket design aesthetic
 
 #### **Content Rendering**
 - **Markdown Support**: Full GitHub Flavored Markdown with custom mobile styling
@@ -42,11 +64,13 @@
 - **Responsive Touch**: Optimized for mobile and desktop interactions
 
 #### **Development Infrastructure**
-- **Test-Driven Development**: 25/25 tests passing with comprehensive coverage
+- **Test-Driven Development**: Comprehensive test coverage with 50+ test cases
+- **Archive Testing**: Complete TDD workflow with unit, integration, and E2E tests
 - **TypeScript**: Full type safety with strict mode enabled
 - **Modern Tooling**: Next.js 15, Vitest, React Testing Library
 - **Package Manager**: pnpm for efficient dependency management
-- **Performance**: Lightweight implementation (148kB bundle size)
+- **Performance**: Lightweight implementation (~150kB bundle size)
+- **Build Validation**: All tests passing, clean builds with minimal warnings
 
 ---
 

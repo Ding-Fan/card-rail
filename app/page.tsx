@@ -7,10 +7,10 @@ import { useNotes } from '../lib/useNotes';
 export default function Home() {
   const { isLoading, refreshNotes, getTopLevelNotes, getChildNotes } = useNotes();
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // Get only top-level notes (no parent)
   const topLevelNotes = getTopLevelNotes();
-  
+
   // Touch/swipe state
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
@@ -49,11 +49,11 @@ export default function Home() {
 
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-    
+
     const deltaX = touchStart.x - touchEnd.x;
     const deltaY = touchStart.y - touchEnd.y;
     const minSwipeDistance = 50;
-    
+
     // Check if this is a vertical swipe (more vertical than horizontal)
     if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > minSwipeDistance) {
       // Simple scroll behavior without specific card navigation
@@ -68,7 +68,7 @@ export default function Home() {
         }
       }
     }
-    
+
     setTouchStart(null);
     setTouchEnd(null);
   };
@@ -76,7 +76,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Content Container - Card Stream */}
-      <div 
+      <div
         ref={containerRef}
         className="min-h-screen overflow-y-auto"
         onTouchStart={handleTouchStart}
@@ -97,10 +97,11 @@ export default function Home() {
           // Notes list
           topLevelNotes.map((note) => (
             <div key={note.id} className="p-4 flex-shrink-0">
-              <Card 
-                note={note} 
+              <Card
+                note={note}
                 childCount={getChildNotes(note.id).length}
                 showNestedIcon={true}
+                onArchived={refreshNotes}
               />
             </div>
           ))

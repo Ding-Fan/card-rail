@@ -16,7 +16,7 @@ Package Manager: pnpm
 ## 🎯 **Feature Status Overview**
 
 ```
-✅ Implemented: 19 features
+✅ Implemented: 22 features
 🚧 In Progress: 0 features  
 📋 Planned: 4 features
 💭 Ideas: 5 features

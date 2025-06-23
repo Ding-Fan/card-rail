@@ -6,20 +6,24 @@ import remarkGfm from 'remark-gfm';
 import { useRouter } from 'next/navigation';
 import { Note } from '../lib/types';
 import { useCardHeight, CARD_HEIGHT_RATIOS } from '../lib/cardHeight';
+import { storage } from '../lib/storage';
+import { ArchiveConfirmBubble } from './ArchiveConfirmBubble';
 
 interface CardProps {
   note: Note;
   childCount?: number; // Number of child notes
   showNestedIcon?: boolean; // Whether to show the nested notes icon
   disableEntryAnimation?: boolean; // Disable the default entry animation
+  onArchived?: () => void; // Callback when note is archived
 }
 
-export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon = true, disableEntryAnimation = false }) => {
+export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon = true, disableEntryAnimation = false, onArchived }) => {
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [isAnimated, setIsAnimated] = React.useState(disableEntryAnimation);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
   const cardHeight = useCardHeight(note);
 
   // Calculate viewport height class based on measured content
@@ -67,9 +71,39 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
 
   const handleArchiveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('Archive clicked, setting showArchiveConfirm to true');
     setIsMenuOpen(false);
-    // TODO: Implement archive functionality
-    console.log(`Archiving note ${note.id}`);
+    setShowArchiveConfirm(true);
+  };
+
+  // Calculate archive bubble position safely
+  const getArchiveBubblePosition = () => {
+    if (!cardRef.current) {
+      console.log('No cardRef available');
+      return { x: 100, y: 100 }; // Fallback position
+    }
+
+    const cardRect = cardRef.current.getBoundingClientRect();
+    console.log('Card rect:', cardRect);
+
+    // Simple positioning - place bubble above and to the left of the card
+    const x = Math.max(20, cardRect.left - 50);
+    const y = Math.max(20, cardRect.top - 100);
+
+    console.log('Bubble position:', { x, y });
+    return { x, y };
+  };
+
+  const handleArchiveConfirm = () => {
+    const success = storage.archiveNote(note.id);
+    if (success && onArchived) {
+      onArchived();
+    }
+    setShowArchiveConfirm(false);
+  };
+
+  const handleArchiveCancel = () => {
+    setShowArchiveConfirm(false);
   };
 
   const handleNestedClick = (e: React.MouseEvent) => {
@@ -172,29 +206,33 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
 
       {/* Integrated Drawer Menu - slides up from inside the card */}
       <div
+        data-testid="card-drawer-menu"
+        data-menu-open={isMenuOpen}
         className={`absolute bottom-6 left-6 right-6 bg-gray-50/95 backdrop-blur-sm border border-gray-200/50 rounded-lg shadow-sm transform transition-transform duration-300 ease-out z-10 ${isMenuOpen ? 'translate-y-0' : 'translate-y-full'
           }`}
       >
-        <div className="px-4 py-3 space-y-0">
-          <button
-            onClick={handleEditClick}
-            className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors rounded-md border-b border-gray-200/50 last:border-b-0"
-          >
-            <svg className="w-5 h-5 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            Edit Note
-          </button>
-          <button
-            onClick={handleArchiveClick}
-            className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors rounded-md"
-          >
-            <svg className="w-5 h-5 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-            </svg>
-            Archive Note
-          </button>
-        </div>
+        {isMenuOpen && (
+          <div className="px-4 py-3 space-y-0">
+            <button
+              onClick={handleEditClick}
+              className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors rounded-md border-b border-gray-200/50 last:border-b-0"
+            >
+              <svg className="w-5 h-5 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Edit Note
+            </button>
+            <button
+              onClick={handleArchiveClick}
+              className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors rounded-md"
+            >
+              <svg className="w-5 h-5 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+              </svg>
+              Archive Note
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Nested Notes Navigation Icon - positioned higher when menu is open */}
@@ -229,6 +267,15 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
           </button>
         </div>
       )}
+
+      {/* Archive Confirmation Bubble */}
+      <ArchiveConfirmBubble
+        isOpen={showArchiveConfirm}
+        position={getArchiveBubblePosition()}
+        noteTitle={note.title || note.content.split('\n')[0] || 'Untitled Note'}
+        onConfirm={handleArchiveConfirm}
+        onCancel={handleArchiveCancel}
+      />
     </div>
   );
 };

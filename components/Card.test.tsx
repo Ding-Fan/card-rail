@@ -103,24 +103,29 @@ describe('Card Component', () => {
     render(<Card note={mockNotes.simple} />)
 
     const menuButton = screen.getByTestId('card-menu-button')
+    const drawerMenu = screen.getByTestId('card-drawer-menu')
 
-    // Menu should not be visible initially
-    expect(screen.queryByText('Edit')).not.toBeInTheDocument()
-    expect(screen.queryByText('Archive')).not.toBeInTheDocument()
+    // Verify menu is initially closed
+    expect(drawerMenu).toHaveAttribute('data-menu-open', 'false')
+    expect(drawerMenu).toHaveClass('translate-y-full')
+    expect(screen.queryByText('Edit Note')).not.toBeInTheDocument()
+    expect(screen.queryByText('Archive Note')).not.toBeInTheDocument()
 
     // Click menu button to open menu
     fireEvent.click(menuButton)
 
-    // Menu items should now be visible
-    expect(screen.getByText('Edit')).toBeInTheDocument()
-    expect(screen.getByText('Archive')).toBeInTheDocument()
+    // Verify menu is now open
+    expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
+    expect(drawerMenu).toHaveClass('translate-y-0')
+    expect(screen.getByText('Edit Note')).toBeInTheDocument()
+    expect(screen.getByText('Archive Note')).toBeInTheDocument()
   })
 
   it('should have proper 3-dot menu button styling', () => {
     render(<Card note={mockNotes.simple} />)
 
     const menuButton = screen.getByTestId('card-menu-button')
-    expect(menuButton).toHaveClass('bg-gray-100', 'hover:bg-gray-200', 'text-gray-600', 'rounded-full')
+    expect(menuButton).toHaveClass('bg-gray-100/80', 'hover:bg-gray-200/80', 'text-gray-600', 'rounded-full')
     expect(menuButton).toHaveClass('w-8', 'h-8')
   })
 
@@ -130,7 +135,7 @@ describe('Card Component', () => {
     const menuButton = screen.getByTestId('card-menu-button')
     fireEvent.click(menuButton)
 
-    const editMenuItem = screen.getByText('Edit')
+    const editMenuItem = screen.getByText('Edit Note')
     fireEvent.click(editMenuItem)
 
     expect(mockPush).toHaveBeenCalledWith('/note/1?edit=true')
@@ -145,7 +150,7 @@ describe('Card Component', () => {
     // Menu button should work independently of card clicks
     expect(mockPush).not.toHaveBeenCalled()
 
-    const editMenuItem = screen.getByText('Edit')
+    const editMenuItem = screen.getByText('Edit Note')
     fireEvent.click(editMenuItem)
 
     expect(mockPush).toHaveBeenCalledWith('/note/1?edit=true')

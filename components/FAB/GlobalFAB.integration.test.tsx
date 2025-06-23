@@ -121,16 +121,23 @@ describe('GlobalFAB User Workflow Integration Tests', () => {
 
   describe('Position Persistence Business Logic', () => {
     it('should start at golden spiral position when no saved position exists', () => {
+      // Set up realistic viewport dimensions
+      Object.defineProperty(window, 'innerWidth', { value: 1024, writable: true })
+      Object.defineProperty(window, 'innerHeight', { value: 768, writable: true })
+
       renderGlobalFAB()
 
       const fab = screen.getByTestId('draggable-fab')
 
-      // Should be positioned at golden spiral point (right side)
+      // Should be positioned at top-right corner
       const leftValue = parseInt(fab.style.left.replace('px', ''))
       const topValue = parseInt(fab.style.top.replace('px', ''))
 
+      // With viewport 1024x768, expected position should be:
+      // x = 1024 - 80 - 20 = 924 (right side with padding)
+      // y = 20 (top with padding)
       expect(leftValue).toBeGreaterThan(800) // Should be on right side
-      expect(topValue).toBeGreaterThan(100) // Should be positioned vertically
+      expect(topValue).toBeLessThan(50) // Should be at top with padding
     })
 
     it('should load and use saved position from localStorage', () => {

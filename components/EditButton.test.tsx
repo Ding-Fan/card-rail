@@ -20,52 +20,73 @@ describe('Card Component - Edit Button', () => {
 
   it('should render an edit button in the card header', () => {
     render(<Card note={mockNotes.simple} />)
-    
-    const editButton = screen.getByTestId('edit-button')
+
+    // Card now uses a menu button instead of direct edit button
+    const menuButton = screen.getByTestId('card-menu-button')
+    expect(menuButton).toBeInTheDocument()
+
+    // Click to open menu
+    fireEvent.click(menuButton)
+
+    // Should find edit option in the menu
+    const editButton = screen.getByText('Edit Note')
     expect(editButton).toBeInTheDocument()
-    
-    // Should be within the header section
-    const header = screen.getByTestId('card-header')
-    expect(header).toContainElement(editButton)
   })
 
   it('should have proper edit button styling and icon', () => {
     render(<Card note={mockNotes.simple} />)
-    
-    const editButton = screen.getByTestId('edit-button')
-    expect(editButton).toHaveClass('bg-gray-400', 'text-white', 'rounded-full')
-    expect(editButton).toHaveClass('w-7', 'h-7') // Smaller, subtle floating button
-    
-    // Should have edit icon
-    const editIcon = screen.getByTestId('edit-icon')
-    expect(editIcon).toBeInTheDocument()
-    expect(editIcon).toHaveClass('w-3', 'h-3')
+
+    // Open the menu
+    const menuButton = screen.getByTestId('card-menu-button')
+    fireEvent.click(menuButton)
+
+    // Check menu button styling
+    expect(menuButton).toHaveClass('bg-gray-100/80', 'text-gray-600', 'rounded-full')
+    expect(menuButton).toHaveClass('w-8', 'h-8')
+
+    // Should have edit option in menu
+    const editOption = screen.getByText('Edit Note')
+    expect(editOption).toBeInTheDocument()
   })
 
   it('should navigate to edit page when edit button is clicked', () => {
     render(<Card note={mockNotes.simple} />)
-    
-    const editButton = screen.getByTestId('edit-button')
+
+    // Open the menu first
+    const menuButton = screen.getByTestId('card-menu-button')
+    fireEvent.click(menuButton)
+
+    // Click the edit option
+    const editButton = screen.getByText('Edit Note')
     fireEvent.click(editButton)
-    
+
     expect(mockPush).toHaveBeenCalledWith('/note/1?edit=true')
   })
 
   it('should stop event propagation on edit button click', () => {
     render(<Card note={mockNotes.simple} />)
-    
-    const editButton = screen.getByTestId('edit-button')
+
+    // Open the menu first
+    const menuButton = screen.getByTestId('card-menu-button')
+    fireEvent.click(menuButton)
+
+    // Click the edit option
+    const editButton = screen.getByText('Edit Note')
     fireEvent.click(editButton)
-    
+
     // Edit button should work independently
     expect(mockPush).toHaveBeenCalledWith('/note/1?edit=true')
   })
 
   it('should be accessible with proper ARIA labels', () => {
     render(<Card note={mockNotes.simple} />)
-    
-    const editButton = screen.getByTestId('edit-button')
-    expect(editButton).toHaveAttribute('aria-label', 'Edit note')
-    expect(editButton).toHaveAttribute('role', 'button')
+
+    const menuButton = screen.getByTestId('card-menu-button')
+    expect(menuButton).toHaveAttribute('aria-label', 'Card options')
+
+    // Open menu and check edit option accessibility
+    fireEvent.click(menuButton)
+    const editOption = screen.getByText('Edit Note')
+    expect(editOption).toBeInTheDocument()
   })
 })

@@ -48,12 +48,13 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                     {/* Add Note Button */}
                     <div className="flex items-center gap-3">
                         {/* Text label - positioned to the left */}
-                        <div
-                            className={`bg-black/80 text-white px-3 py-1 rounded-lg text-sm font-medium pointer-events-none transition-all duration-500 ${showLabels ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
+                        <button
+                            onClick={onAddNote}
+                            className={`bg-black/80 text-white px-3 py-1 rounded-lg text-sm font-medium transition-all duration-500 hover:bg-black/90 ${showLabels ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
                                 }`}
                         >
                             Add Note
-                        </div>
+                        </button>
                         {/* Icon button */}
                         <button
                             onClick={onAddNote}
@@ -68,12 +69,13 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                     {/* View Archive Button */}
                     <div className="flex items-center gap-3">
                         {/* Text label - positioned to the left */}
-                        <div
-                            className={`bg-black/80 text-white px-3 py-1 rounded-lg text-sm font-medium pointer-events-none transition-all duration-500 delay-100 ${showLabels ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
+                        <button
+                            onClick={onViewArchive}
+                            className={`bg-black/80 text-white px-3 py-1 rounded-lg text-sm font-medium transition-all duration-500 delay-100 hover:bg-black/90 ${showLabels ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
                                 }`}
                         >
                             View Archive
-                        </div>
+                        </button>
                         {/* Icon button */}
                         <button
                             onClick={onViewArchive}

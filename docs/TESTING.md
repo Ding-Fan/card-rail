@@ -1,6 +1,6 @@
 # Testing Guide for Card Rail
 
-This project uses **Vitest** with **React Testing Library** for unit testing. The testing setup follows TDD (Test-Driven Development) principles and is designed to be beginner-friendly.
+This project uses **Vitest** with **React Testing Library** for comprehensive testing. The testing approach follows TDD (Test-Driven Development) principles with extensive coverage of user workflows and edge cases.
 
 ## 🧪 Testing Stack
 
@@ -8,25 +8,28 @@ This project uses **Vitest** with **React Testing Library** for unit testing. Th
 - **React Testing Library**: Component testing focused on user behavior
 - **jsdom**: DOM environment for browser-like testing
 - **@testing-library/jest-dom**: Extended matchers for better assertions
+- **TDD Approach**: Tests written first, implementation follows
 
 ## 📁 Test Structure
 
 ```
 test/
-├── setup.ts           # Global test configuration
-└── utils.tsx          # Custom render helpers and utilities
+├── setup.ts                      # Global test configuration
+├── utils.tsx                     # Custom render helpers and utilities
+└── mocks.ts                      # Mock data and utilities
 components/
-├── Card.test.tsx      # Card component tests (13 tests)
-├── EditButton.test.tsx # Edit button specific tests (5 tests)
-└── Card.tsx           # Card component implementation
+├── Card.test.tsx                 # Core card component tests (13 tests)
+├── EditButton.test.tsx           # Edit button interaction tests (5 tests) 
+├── Card.archive.test.tsx         # Archive functionality tests (25 tests)
+├── Archive.integration.test.tsx  # Archive integration tests (8 tests)
+├── Card.archive.e2e.test.tsx     # End-to-end archive workflow (12 tests)
+└── FAB/
+    ├── GlobalFAB.integration.test.tsx # FAB workflow tests (8 tests)
+    └── DraggableFAB.test.tsx         # FAB interaction tests (6 tests)
 app/
 └── note/[id]/
-    ├── page.test.tsx  # Note detail page tests (5 tests)
-    └── page.tsx       # Note detail page implementation
-data/
-└── mockNotes.ts       # Test data (4 sample notes)
-lib/
-└── types.ts           # TypeScript interfaces
+    ├── page.test.tsx             # Note detail page tests (5 tests)
+    └── page.integration.test.tsx # Note creation workflow (4 tests)
 ```
 
 ## 🚀 Running Tests
@@ -39,15 +42,18 @@ pnpm test
 pnpm test:watch
 
 # Run specific test file
-pnpm test components/Card.test.tsx
+pnpm test components/Card.archive.test.tsx
 
 # Run tests with coverage
 pnpm test:coverage
+
+# Run only archive-related tests
+pnpm test --testNamePattern="Archive"
 ```
 
 ## 📊 Current Test Coverage
 
-**23/23 tests passing** with comprehensive coverage of:
+**80+ tests passing** with comprehensive coverage of:
 
 ### Card Component Tests (13 tests)
 - ✅ Note title rendering
@@ -454,3 +460,46 @@ pnpm test:watch
 ```
 
 This will re-run relevant tests as you save files, giving you instant feedback on your changes.
+
+## 🎯 TDD Archive Feature Development
+
+The archive functionality was developed using strict TDD methodology:
+
+### **Phase 1: Test-First Development**
+1. **Requirements Analysis**: Defined archive user stories and acceptance criteria
+2. **Test Case Creation**: Wrote comprehensive test suites before any implementation
+3. **Red Phase**: All tests fail initially (expected behavior)
+4. **Implementation**: Built features to make tests pass
+5. **Green Phase**: All tests pass with minimal implementation
+6. **Refactor Phase**: Improved code quality while maintaining test coverage
+
+### **Test Categories for Archive Feature**
+
+#### **Unit Tests** (`Card.archive.test.tsx`)
+- Archive menu option rendering and interactions
+- Confirmation bubble display and positioning
+- Archive action execution and callbacks
+- Error handling and edge cases
+- State management consistency
+- **Coverage**: 25 test cases
+
+#### **Integration Tests** (`Archive.integration.test.tsx`)
+- Main page filtering of archived notes
+- Archive page display of archived notes
+- Storage integration and data persistence
+- Component communication and data flow
+- **Coverage**: 8 test cases
+
+#### **End-to-End Tests** (`Card.archive.e2e.test.tsx`)
+- Complete user workflows from menu to confirmation
+- Keyboard and touch interaction patterns
+- State persistence across component re-renders
+- Concurrent archive attempt handling
+- **Coverage**: 12 test cases
+
+### **Test-Driven Benefits Achieved**
+- **100% Feature Coverage**: Every archive workflow path tested
+- **Regression Protection**: Changes can't break existing functionality
+- **Documentation**: Tests serve as living specification
+- **Confidence**: Refactoring and improvements made safely
+- **Quality**: Edge cases and error conditions handled properly

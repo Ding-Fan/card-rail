@@ -15,8 +15,9 @@ export function useNotes() {
       try {
         const savedNotes = storage.getNotes();
         if (savedNotes && Object.keys(savedNotes).length > 0) {
-          const noteArray = Object.values(savedNotes) as Note[];
-          setNotes(noteArray);
+          // Only load active (non-archived) notes
+          const activeNotes = storage.getActiveNotes();
+          setNotes(activeNotes);
         } else {
           // First time load - use mock notes and save to localStorage for local-first behavior
           const mockNotes = getAllMockNotes();
