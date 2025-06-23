@@ -52,9 +52,9 @@ export const calculateMenuPosition = (
   fabPosition: Position, 
   fabSize: { width: number; height: number }
 ): MenuPosition => {
-  const menuWidth = 160;
-  const menuHeight = 100; // More accurate height for 2 items
-  const gap = 8; // Smaller gap to prevent overlap
+  const menuWidth = 160; // Wider to accommodate labels + icons
+  const menuHeight = 120; // Height for 2 buttons with spacing
+  const gap = 4; // Gap between FAB and menu
   
   const viewport = {
     width: window.innerWidth,
@@ -66,19 +66,19 @@ export const calculateMenuPosition = (
     y: fabPosition.y + fabSize.height / 2
   };
   
-  // Try positions in order of preference: bottom, left, right, top
+  // Try positions in order of preference: left, bottom, right, top
   const positions = [
-    // Bottom (preferred for top-right FAB) - ensure it's below the FAB
-    {
-      x: Math.max(10, Math.min(fabCenter.x - menuWidth / 2, viewport.width - menuWidth - 10)),
-      y: fabPosition.y + fabSize.height + gap,
-      side: 'bottom' as const
-    },
-    // Left side (good for top-right FAB)
+    // Left side (preferred for top-right FAB with text labels)
     {
       x: fabPosition.x - menuWidth - gap,
       y: Math.max(10, Math.min(fabPosition.y, viewport.height - menuHeight - 10)),
       side: 'left' as const
+    },
+    // Bottom (secondary choice)
+    {
+      x: Math.max(10, Math.min(fabCenter.x - menuWidth / 2, viewport.width - menuWidth - 10)),
+      y: fabPosition.y + fabSize.height + gap,
+      side: 'bottom' as const
     },
     // Right side (fallback)
     {

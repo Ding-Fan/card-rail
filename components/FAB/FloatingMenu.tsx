@@ -3,10 +3,10 @@
  * FLOATING MENU COMPONENT
  * ============================================================================
  * 
- * iOS-style floating menu for FAB actions
+ * iOS-style floating menu for FAB actions with auto-hiding text labels
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import * as Portal from '@radix-ui/react-portal';
 import { FloatingMenuProps } from './types';
 
@@ -16,6 +16,22 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
     onAddNote,
     onViewArchive
 }) => {
+    const [showLabels, setShowLabels] = useState(false);
+
+    // Auto-hide labels after 1 seconds
+    useEffect(() => {
+        if (isOpen) {
+            setShowLabels(true);
+            const timer = setTimeout(() => {
+                setShowLabels(false);
+            }, 1000);
+
+            return () => clearTimeout(timer);
+        } else {
+            setShowLabels(false);
+        }
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     return (
@@ -27,28 +43,47 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                     top: position.y,
                 }}
             >
-                <div className="pointer-events-auto bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-gray-200/50 p-1 min-w-[150px] animate-in fade-in-0 zoom-in-95 duration-200">
-                    {/* Add Note - Always available */}
-                    <button
-                        onClick={onAddNote}
-                        className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                        <svg className="w-5 h-5 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                        Add Note
-                    </button>
+                {/* Icon buttons container */}
+                <div className="pointer-events-auto flex flex-col gap-3">
+                    {/* Add Note Button */}
+                    <div className="flex items-center gap-3">
+                        {/* Text label - positioned to the left */}
+                        <div
+                            className={`bg-black/80 text-white px-3 py-1 rounded-lg text-sm font-medium pointer-events-none transition-all duration-500 ${showLabels ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
+                                }`}
+                        >
+                            Add Note
+                        </div>
+                        {/* Icon button */}
+                        <button
+                            onClick={onAddNote}
+                            className="w-12 h-12 bg-white/95 backdrop-blur-md rounded-full shadow-xl border border-gray-200/50 flex items-center justify-center hover:bg-gray-50 transition-colors animate-in fade-in-0 zoom-in-95 duration-200"
+                        >
+                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                        </button>
+                    </div>
 
                     {/* View Archive Button */}
-                    <button
-                        onClick={onViewArchive}
-                        className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                        <svg className="w-5 h-5 mr-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                        </svg>
-                        View Archive
-                    </button>
+                    <div className="flex items-center gap-3">
+                        {/* Text label - positioned to the left */}
+                        <div
+                            className={`bg-black/80 text-white px-3 py-1 rounded-lg text-sm font-medium pointer-events-none transition-all duration-500 delay-100 ${showLabels ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
+                                }`}
+                        >
+                            View Archive
+                        </div>
+                        {/* Icon button */}
+                        <button
+                            onClick={onViewArchive}
+                            className="w-12 h-12 bg-white/95 backdrop-blur-md rounded-full shadow-xl border border-gray-200/50 flex items-center justify-center hover:bg-gray-50 transition-colors animate-in fade-in-0 zoom-in-95 duration-200"
+                        >
+                            <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </Portal.Root>
