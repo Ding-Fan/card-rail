@@ -17,17 +17,16 @@ export const FAB_HEIGHT = 40; // h-10 = 40px
 export const PADDING = 20; // Comfort padding from viewport edges
 
 /**
- * Calculate the default golden spiral position on the right side
+ * Calculate the default position at top-right corner
  */
 export const getDefaultPosition = (): Position => {
   if (typeof window === 'undefined') return { x: 0, y: 0 };
   
-  const viewportHeight = window.innerHeight;
   const viewportWidth = window.innerWidth;
   
   return {
     x: viewportWidth - FAB_WIDTH - PADDING, // Right side with padding  
-    y: viewportHeight * (1 - GOLDEN_RATIO) // Golden spiral point (38.2% from top)
+    y: PADDING // Top with padding
   };
 };
 
@@ -54,8 +53,8 @@ export const calculateMenuPosition = (
   fabSize: { width: number; height: number }
 ): MenuPosition => {
   const menuWidth = 160;
-  const menuHeight = 120; // Approximate height for 3 items
-  const gap = 12; // Gap between FAB and menu
+  const menuHeight = 100; // More accurate height for 2 items
+  const gap = 8; // Smaller gap to prevent overlap
   
   const viewport = {
     width: window.innerWidth,
@@ -67,29 +66,29 @@ export const calculateMenuPosition = (
     y: fabPosition.y + fabSize.height / 2
   };
   
-  // Try positions in order of preference: right, left, bottom, top
+  // Try positions in order of preference: bottom, left, right, top
   const positions = [
-    // Right side
+    // Bottom (preferred for top-right FAB) - ensure it's below the FAB
     {
-      x: fabPosition.x + fabSize.width + gap,
-      y: fabCenter.y - menuHeight / 2,
-      side: 'right' as const
-    },
-    // Left side
-    {
-      x: fabPosition.x - menuWidth - gap,
-      y: fabCenter.y - menuHeight / 2,
-      side: 'left' as const
-    },
-    // Bottom
-    {
-      x: fabCenter.x - menuWidth / 2,
+      x: Math.max(10, Math.min(fabCenter.x - menuWidth / 2, viewport.width - menuWidth - 10)),
       y: fabPosition.y + fabSize.height + gap,
       side: 'bottom' as const
     },
-    // Top
+    // Left side (good for top-right FAB)
     {
-      x: fabCenter.x - menuWidth / 2,
+      x: fabPosition.x - menuWidth - gap,
+      y: Math.max(10, Math.min(fabPosition.y, viewport.height - menuHeight - 10)),
+      side: 'left' as const
+    },
+    // Right side (fallback)
+    {
+      x: fabPosition.x + fabSize.width + gap,
+      y: Math.max(10, Math.min(fabCenter.y - menuHeight / 2, viewport.height - menuHeight - 10)),
+      side: 'right' as const
+    },
+    // Top (last resort)
+    {
+      x: Math.max(10, Math.min(fabCenter.x - menuWidth / 2, viewport.width - menuWidth - 10)),
       y: fabPosition.y - menuHeight - gap,
       side: 'top' as const
     }
@@ -107,10 +106,10 @@ export const calculateMenuPosition = (
     }
   }
   
-  // Fallback: right side, constrained to viewport
+  // Fallback: position to the left of FAB, constrained to viewport
   return {
-    x: Math.max(10, Math.min(fabPosition.x + fabSize.width + gap, viewport.width - menuWidth - 10)),
-    y: Math.max(10, Math.min(fabCenter.y - menuHeight / 2, viewport.height - menuHeight - 10)),
-    side: 'right'
+    x: Math.max(10, Math.min(fabPosition.x - menuWidth - gap, viewport.width - menuWidth - 10)),
+    y: Math.max(10, Math.min(fabPosition.y, viewport.height - menuHeight - 10)),
+    side: 'left'
   };
 };
