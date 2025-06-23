@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from '../../../components/Card';
 import { useNotes } from '../../../lib/useNotes';
-import { useFAB } from '../../../components/FABContext';
+import { useFAB } from '../../../components/FAB/FABContext';
 import { Note } from '../../../lib/types';
 
 interface NoteViewClientProps {
@@ -21,7 +21,7 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
 
   // Get the current note ID (last in path)
   const currentNoteId = notePath[notePath.length - 1];
-  
+
   // Determine if we're at root level or nested
   const isRootLevel = notePath.length === 1;
   const nestingLevel = notePath.length - 1;
@@ -31,7 +31,7 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
       // Get current note
       const note = getNoteById(currentNoteId);
       setCurrentNote(note || null);
-      
+
       // Build breadcrumb trail
       const breadcrumbs: Note[] = [];
       for (let i = 0; i < notePath.length; i++) {
@@ -42,7 +42,7 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
         }
       }
       setBreadcrumbNotes(breadcrumbs);
-      
+
       // Get child notes for current note
       if (note) {
         const children = getChildNotes(note.id);
@@ -54,7 +54,7 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
   const handleCreateNestedNote = () => {
     const timestamp = new Date().toLocaleString();
     const newNoteId = createNestedNote(currentNoteId, `# New Note\n\nCreated: ${timestamp}\n\nParent: ${currentNote?.title || 'Unknown'}\nNesting Level: ${nestingLevel + 1}\n\n`);
-    
+
     // Navigate to the new nested note
     const newPath = [...notePath, newNoteId];
     router.push(`/note/${newPath.join('/')}`);
@@ -63,7 +63,7 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
   // Register the create note handler with the global FAB
   useEffect(() => {
     setCreateNoteHandler(handleCreateNestedNote);
-    
+
     // Cleanup: reset to default behavior when leaving this page
     return () => setCreateNoteHandler(undefined);
   }, [setCreateNoteHandler, currentNoteId, currentNote?.title, nestingLevel, notePath, createNestedNote, router]);
@@ -134,11 +134,10 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
                   <span className="text-gray-400">/</span>
                   <button
                     onClick={() => handleBreadcrumbClick(index)}
-                    className={`transition-colors truncate max-w-32 ${
-                      index === breadcrumbNotes.length - 1
+                    className={`transition-colors truncate max-w-32 ${index === breadcrumbNotes.length - 1
                         ? 'text-gray-900 font-medium'
                         : 'text-blue-600 hover:text-blue-800'
-                    }`}
+                      }`}
                   >
                     {note.title || `Note ${index + 1}`}
                   </button>
@@ -174,16 +173,15 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
               </span>
             </div>
           )}
-          
-          <div 
-            className={`transition-all duration-300 ${
-              isRootLevel 
-                ? 'scale-100' 
+
+          <div
+            className={`transition-all duration-300 ${isRootLevel
+                ? 'scale-100'
                 : 'scale-95 opacity-90 hover:scale-100 hover:opacity-100'
-            }`}
-            style={!isRootLevel ? { 
-              transformStyle: 'preserve-3d', 
-              transform: `perspective(1000px) rotateX(${Math.min(nestingLevel * 2, 10)}deg)` 
+              }`}
+            style={!isRootLevel ? {
+              transformStyle: 'preserve-3d',
+              transform: `perspective(1000px) rotateX(${Math.min(nestingLevel * 2, 10)}deg)`
             } : {}}
           >
             <Card

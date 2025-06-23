@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useRouter } from 'next/navigation';
@@ -17,7 +17,9 @@ interface CardProps {
 export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon = true, disableEntryAnimation = false }) => {
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [isAnimated, setIsAnimated] = React.useState(disableEntryAnimation);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const cardHeight = useCardHeight(note);
 
   // Calculate viewport height class based on measured content
@@ -29,7 +31,7 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
   // Entry animation on mount using CSS transitions
   useEffect(() => {
     if (disableEntryAnimation) return;
-    
+
     // Trigger animation after a small delay
     const timer = setTimeout(() => {
       setIsAnimated(true);
@@ -38,17 +40,47 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
     return () => clearTimeout(timer);
   }, [disableEntryAnimation]);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
   // Removed handleClick - card clicks should do nothing
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card tap event
+    setIsMenuOpen(false);
     router.push(`/note/${note.id}?edit=true`);
+  };
+
+  const handleArchiveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMenuOpen(false);
+    // TODO: Implement archive functionality
+    console.log(`Archiving note ${note.id}`);
   };
 
   const handleNestedClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card tap event
     // Navigate to the infinite nesting route instead of the legacy nested route
     router.push(`/note/${note.id}`);
+  };
+
+  const toggleMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMenuOpen(!isMenuOpen);
   };
 
   return (
@@ -58,50 +90,22 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
       className={`w-full bg-white rounded-lg shadow-lg p-6 flex flex-col relative
         transition-all duration-600 ease-out
         ${heightClass}
-        ${isAnimated 
-          ? 'opacity-100 scale-100 translate-y-0' 
+        ${isAnimated
+          ? 'opacity-100 scale-100 translate-y-0'
           : 'opacity-0 scale-95 translate-y-4'
         }`}
     >
-      {/* Fixed Card Header */}
-      <div data-testid="card-header" className="absolute top-4 right-4 z-10">
-        {/* Edit Button */}
-        <button
-          data-testid="edit-button"
-          onClick={handleEditClick}
-          aria-label="Edit note"
-          role="button"
-          className="w-7 h-7 bg-gray-400 text-white rounded-full shadow-sm transition-colors flex items-center justify-center"
-        >
-          <svg
-            data-testid="edit-icon"
-            className="w-3 h-3"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-            />
-          </svg>
-        </button>
-      </div>
-
       {/* Card Content - Full height */}
-      <div 
+      <div
         data-testid="card-content-wrapper"
         className="h-full relative overflow-hidden"
       >
-        <div 
+        <div
           data-testid="card-content"
           className="h-full overflow-hidden"
         >
           <div className="prose prose-gray prose-sm max-w-none">
-            <ReactMarkdown 
+            <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
                 // Customize markdown rendering for mobile
@@ -138,16 +142,56 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
             </ReactMarkdown>
           </div>
         </div>
-        
+
         {/* Fade mask for overflow indication */}
-        <div 
+        <div
           data-testid="fade-mask"
           className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"
         />
       </div>
 
+      {/* 3-Dot Menu in bottom-right corner */}
+      <div className="absolute bottom-4 right-4 z-10">
+        <div className="relative" ref={menuRef}>
+          <button
+            data-testid="card-menu-button"
+            onClick={toggleMenu}
+            aria-label="Card options"
+            className="w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full shadow-sm transition-colors flex items-center justify-center"
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+            </svg>
+          </button>
+
+          {/* Dropdown Menu */}
+          {isMenuOpen && (
+            <div className="absolute bottom-full right-0 mb-2 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[120px] z-20">
+              <button
+                onClick={handleEditClick}
+                className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <svg className="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit
+              </button>
+              <button
+                onClick={handleArchiveClick}
+                className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+                Archive
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Nested Notes Navigation Icon */}
-      {showNestedIcon && (
+      {showNestedIcon && childCount > 0 && (
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
           <button
             data-testid="nested-notes-button"
@@ -171,11 +215,9 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
                 d="M9 5l7 7-7 7"
               />
             </svg>
-            {childCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                {childCount > 9 ? '9+' : childCount}
-              </span>
-            )}
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+              {childCount > 9 ? '9+' : childCount}
+            </span>
           </button>
         </div>
       )}

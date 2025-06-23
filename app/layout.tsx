@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { GlobalFAB } from "../components/GlobalFAB";
-import { FABProvider } from "../components/FABContext";
+import { GlobalFAB } from "../components/FAB/GlobalFAB";
+import { FABProvider } from "../components/FAB/FABContext";
 import "./globals.css";
 
 const geistSans = Geist({
