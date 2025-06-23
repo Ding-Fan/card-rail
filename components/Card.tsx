@@ -9,15 +9,15 @@ import { useCardHeight, CARD_HEIGHT_RATIOS } from '../lib/cardHeight';
 
 interface CardProps {
   note: Note;
-  onTap?: (noteId: string) => void;
   childCount?: number; // Number of child notes
   showNestedIcon?: boolean; // Whether to show the nested notes icon
+  disableEntryAnimation?: boolean; // Disable the default entry animation
 }
 
-export const Card: React.FC<CardProps> = ({ note, onTap, childCount = 0, showNestedIcon = true }) => {
+export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon = true, disableEntryAnimation = false }) => {
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
-  const [isAnimated, setIsAnimated] = React.useState(false);
+  const [isAnimated, setIsAnimated] = React.useState(disableEntryAnimation);
   const cardHeight = useCardHeight(note);
 
   // Calculate viewport height class based on measured content
@@ -28,19 +28,17 @@ export const Card: React.FC<CardProps> = ({ note, onTap, childCount = 0, showNes
 
   // Entry animation on mount using CSS transitions
   useEffect(() => {
+    if (disableEntryAnimation) return;
+    
     // Trigger animation after a small delay
     const timer = setTimeout(() => {
       setIsAnimated(true);
     }, Math.random() * 200); // Stagger animation for multiple cards
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [disableEntryAnimation]);
 
-  const handleClick = () => {
-    if (onTap) {
-      onTap(note.id);
-    }
-  };
+  // Removed handleClick - card clicks should do nothing
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card tap event
@@ -57,14 +55,13 @@ export const Card: React.FC<CardProps> = ({ note, onTap, childCount = 0, showNes
     <div
       ref={cardRef}
       data-testid="note-card"
-      className={`w-full bg-white rounded-lg shadow-lg cursor-pointer p-6 flex flex-col relative
+      className={`w-full bg-white rounded-lg shadow-lg p-6 flex flex-col relative
         transition-all duration-600 ease-out
         ${heightClass}
         ${isAnimated 
           ? 'opacity-100 scale-100 translate-y-0' 
           : 'opacity-0 scale-95 translate-y-4'
         }`}
-      onClick={handleClick}
     >
       {/* Fixed Card Header */}
       <div data-testid="card-header" className="absolute top-4 right-4 z-10">
@@ -157,7 +154,7 @@ export const Card: React.FC<CardProps> = ({ note, onTap, childCount = 0, showNes
             onClick={handleNestedClick}
             aria-label={`View nested notes (${childCount} child notes)`}
             role="button"
-            className="w-8 h-8 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 transition-all duration-200 flex items-center justify-center group"
+            className="w-8 h-8 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 transition-all rotate-90 duration-200 flex items-center justify-center group"
           >
             <svg
               data-testid="nested-icon"

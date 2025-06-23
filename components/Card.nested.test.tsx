@@ -1,16 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Card } from '../components/Card';
-import { Note } from '../lib/types';
+import { createMockNote } from '../test/mocks';
 
-// Mock next/navigation
-const mockPush = vi.fn();
+// Mock Next.js router - must be done at module level
+const mockPush = vi.fn()
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: mockPush,
     back: vi.fn(),
   }),
-}));
+}))
 
 // Mock the cardHeight hook
 vi.mock('../lib/cardHeight', () => ({
@@ -23,13 +23,13 @@ vi.mock('../lib/cardHeight', () => ({
 }));
 
 describe('Card with Nested Notes', () => {
-  const mockNote: Note = {
+  const mockNote = createMockNote({
     id: 'test-note-1',
     title: 'Test Note',
     content: '# Test Note\n\nThis is a test note.',
     created_at: '2023-01-01T00:00:00Z',
     updated_at: '2023-01-01T00:00:00Z',
-  };
+  });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -104,11 +104,9 @@ describe('Card with Nested Notes', () => {
   });
 
   it('does not trigger card tap when nested button is clicked', () => {
-    const mockOnTap = vi.fn();
     render(
       <Card 
         note={mockNote} 
-        onTap={mockOnTap}
         childCount={1}
         showNestedIcon={true}
       />
@@ -117,8 +115,7 @@ describe('Card with Nested Notes', () => {
     const nestedButton = screen.getByTestId('nested-notes-button');
     fireEvent.click(nestedButton);
 
-    // Should not call onTap because stopPropagation prevents it
-    expect(mockOnTap).not.toHaveBeenCalled();
+    // Nested button should work independently
     expect(mockPush).toHaveBeenCalledWith('/note/test-note-1');
   });
 });

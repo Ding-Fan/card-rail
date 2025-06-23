@@ -1,12 +1,10 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Card } from '../components/Card';
 import { useNotes } from '../lib/useNotes';
 
 export default function Home() {
-  const router = useRouter();
   const { isLoading, refreshNotes, getTopLevelNotes, getChildNotes } = useNotes();
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -35,10 +33,7 @@ export default function Home() {
     // Removed scroll indicator functionality
   }, []);
 
-  const handleCardTap = (noteId: string) => {
-    console.log('Card tapped:', noteId);
-    router.push(`/note/${noteId}`);
-  };
+  // Removed handleCardTap - card clicks should do nothing
 
   // Handle touch events for swipe gestures
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -104,7 +99,6 @@ export default function Home() {
             <div key={note.id} className="p-4 flex-shrink-0">
               <Card 
                 note={note} 
-                onTap={handleCardTap}
                 childCount={getChildNotes(note.id).length}
                 showNestedIcon={true}
               />

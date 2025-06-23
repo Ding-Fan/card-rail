@@ -1,11 +1,9 @@
 'use client';
 
 import { DraggableFAB } from './DraggableFAB';
+import { useFAB } from './FABContext';
 
-interface GlobalFABProps {
-  onCreateNote?: () => void;
-}
-
-export function GlobalFAB({ onCreateNote }: GlobalFABProps = {}) {
+export function GlobalFAB() {
+  const { onCreateNote } = useFAB();
   return <DraggableFAB onCreateNote={onCreateNote} />;
 }

@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, act } from '../../../test/utils'
 import NoteClient from './NoteClient'
+import { createMockNote } from '../../../test/mocks'
 
-// Mock Next.js router
-const mockPush = vi.fn()
+// Mock Next.js router - must be done at module level
 const mockBack = vi.fn()
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: mockPush,
+    push: vi.fn(),
     back: mockBack,
   }),
 }))
@@ -37,13 +37,13 @@ const localStorageMock = {
 Object.defineProperty(window, 'localStorage', { value: localStorageMock })
 
 // Test note data
-const mockNote = {
+const mockNote = createMockNote({
   id: '1',
   title: 'Test Note',
   content: '# Test Note\n\nThis is test content.',
   created_at: '2025-06-16T10:00:00Z',
   updated_at: '2025-06-16T10:00:00Z',
-}
+})
 
 describe('Note Detail Page', () => {
   beforeEach(() => {

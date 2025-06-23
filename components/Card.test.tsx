@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '../test/utils'
 import { Card } from './Card'
-import { Note } from '../lib/types'
+import { mockAnimejs, mockNotes } from '../test/mocks'
 
-// Mock Next.js router
+// Mock Next.js router - must be done at module level
 const mockPush = vi.fn()
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -11,26 +11,7 @@ vi.mock('next/navigation', () => ({
   }),
 }))
 
-// Mock animejs to avoid DOM manipulation during tests
-vi.mock('animejs', () => ({
-  default: vi.fn(() => ({
-    play: vi.fn(),
-    pause: vi.fn(),
-  })),
-}))
-
-const mockNote: Note = {
-  id: '1',
-  title: 'Test Note',
-  content: `# Test Note
-
-This is a **test** note with some *markdown* content.
-
-- Item 1
-- Item 2`,
-  created_at: '2025-06-16T10:00:00Z',
-  updated_at: '2025-06-16T10:00:00Z',
-}
+mockAnimejs()
 
 describe('Card Component', () => {
   beforeEach(() => {
@@ -38,7 +19,7 @@ describe('Card Component', () => {
   })
 
   it('should render a floating edit button in header area', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     const header = screen.getByTestId('card-header')
     const editButton = screen.getByTestId('edit-button')
@@ -48,7 +29,7 @@ describe('Card Component', () => {
   })
 
   it('should render markdown content as HTML', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     // Check for rendered markdown elements
     expect(screen.getByText('test', { selector: 'strong' })).toBeInTheDocument()
@@ -58,7 +39,7 @@ describe('Card Component', () => {
   })
 
   it('should have dynamic height based on content', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     const card = screen.getByTestId('note-card')
     // Should have dynamic viewport height (one of: h-[24vh], h-[38vh], h-[62vh])
@@ -67,7 +48,7 @@ describe('Card Component', () => {
   })
 
   it('should have card-like visual styling', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     const card = screen.getByTestId('note-card')
     expect(card).toHaveClass('rounded-lg')
@@ -75,26 +56,30 @@ describe('Card Component', () => {
     expect(card).toHaveClass('bg-white')
   })
 
-  it('should be clickable and call onTap when tapped', () => {
-    const onTap = vi.fn()
-    render(<Card note={mockNote} onTap={onTap} />)
+  it('should not be clickable and should not trigger any navigation', () => {
+    render(<Card note={mockNotes.simple} />)
     
     const card = screen.getByTestId('note-card')
     card.click()
     
-    expect(onTap).toHaveBeenCalledWith(mockNote.id)
+    // Card should not have cursor-pointer class
+    expect(card).not.toHaveClass('cursor-pointer')
+    
+    // No navigation should occur when clicking
+    expect(mockPush).not.toHaveBeenCalled()
   })
 
   it('should have proper touch target size for mobile', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     const card = screen.getByTestId('note-card')
     // Should be at least 44px touch target (full screen card meets this)
-    expect(card).toHaveClass('cursor-pointer')
+    // Card should not have cursor-pointer since clicking is disabled
+    expect(card).not.toHaveClass('cursor-pointer')
   })
 
   it('should hide overflowing content instead of scrolling', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     const content = screen.getByTestId('card-content')
     expect(content).toHaveClass('overflow-hidden')
@@ -102,7 +87,7 @@ describe('Card Component', () => {
   })
 
   it('should have a fade mask effect for content overflow', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     const contentWrapper = screen.getByTestId('card-content-wrapper')
     // Should have relative positioning for mask overlay
@@ -117,7 +102,7 @@ describe('Card Component', () => {
 
   // Edit Button Tests
   it('should render an edit button in the card header', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     const editButton = screen.getByTestId('edit-button')
     expect(editButton).toBeInTheDocument()
@@ -128,7 +113,7 @@ describe('Card Component', () => {
   })
 
   it('should have proper edit button styling and icon', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     const editButton = screen.getByTestId('edit-button')
     expect(editButton).toHaveClass('bg-gray-400', 'text-white', 'rounded-full')
@@ -141,7 +126,7 @@ describe('Card Component', () => {
   })
 
   it('should navigate to edit page when edit button is clicked', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     const editButton = screen.getByTestId('edit-button')
     editButton.click()
@@ -150,19 +135,17 @@ describe('Card Component', () => {
   })
 
   it('should stop event propagation on edit button click', () => {
-    const onTap = vi.fn()
-    render(<Card note={mockNote} onTap={onTap} />)
+    render(<Card note={mockNotes.simple} />)
     
     const editButton = screen.getByTestId('edit-button')
     editButton.click()
     
-    // Card onTap should not be called when edit button is clicked
-    expect(onTap).not.toHaveBeenCalled()
+    // Edit button should work independently of card clicks
     expect(mockPush).toHaveBeenCalledWith('/note/1?edit=true')
   })
 
   it('should be accessible with proper ARIA labels', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     const editButton = screen.getByTestId('edit-button')
     expect(editButton).toHaveAttribute('aria-label', 'Edit note')

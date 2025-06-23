@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Note } from '../lib/types';
 import { getAllMockNotes } from '../data/mockNotes';
+import { storage } from './storage';
 
 const STORAGE_KEY = 'card-rail-notes';
 
@@ -12,16 +13,10 @@ export function useNotes() {
   useEffect(() => {
     const loadNotes = () => {
       try {
-        const savedNotes = localStorage.getItem(STORAGE_KEY);
-        if (savedNotes) {
-          const parsedNotes = JSON.parse(savedNotes);
-          // Convert object format to array format
-          if (typeof parsedNotes === 'object' && !Array.isArray(parsedNotes)) {
-            const noteArray = Object.values(parsedNotes) as Note[];
-            setNotes(noteArray);
-          } else {
-            setNotes(parsedNotes);
-          }
+        const savedNotes = storage.getNotes();
+        if (savedNotes && Object.keys(savedNotes).length > 0) {
+          const noteArray = Object.values(savedNotes) as Note[];
+          setNotes(noteArray);
         } else {
           // First time load - use mock notes and save to localStorage for local-first behavior
           const mockNotes = getAllMockNotes();
@@ -33,7 +28,7 @@ export function useNotes() {
           }, {} as Record<string, Note>);
           
           // Save to localStorage immediately for local-first persistence
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(notesObject));
+          storage.setNotes(notesObject);
           
           setNotes(mockNotes);
         }
@@ -48,11 +43,7 @@ export function useNotes() {
           return acc;
         }, {} as Record<string, Note>);
         
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(notesObject));
-        } catch (saveError) {
-          console.error('Failed to save fallback notes to localStorage:', saveError);
-        }
+        storage.setNotes(notesObject);
         
         setNotes(mockNotes);
       } finally {
@@ -89,15 +80,10 @@ export function useNotes() {
   useEffect(() => {
     const handleNotesUpdate = () => {
       try {
-        const savedNotes = localStorage.getItem(STORAGE_KEY);
-        if (savedNotes) {
-          const parsedNotes = JSON.parse(savedNotes);
-          if (typeof parsedNotes === 'object' && !Array.isArray(parsedNotes)) {
-            const noteArray = Object.values(parsedNotes) as Note[];
-            setNotes(noteArray);
-          } else {
-            setNotes(parsedNotes);
-          }
+        const savedNotes = storage.getNotes();
+        if (savedNotes && Object.keys(savedNotes).length > 0) {
+          const noteArray = Object.values(savedNotes) as Note[];
+          setNotes(noteArray);
         }
       } catch (error) {
         console.error('Failed to reload notes:', error);
@@ -110,15 +96,10 @@ export function useNotes() {
 
   const refreshNotes = () => {
     try {
-      const savedNotes = localStorage.getItem(STORAGE_KEY);
-      if (savedNotes) {
-        const parsedNotes = JSON.parse(savedNotes);
-        if (typeof parsedNotes === 'object' && !Array.isArray(parsedNotes)) {
-          const noteArray = Object.values(parsedNotes) as Note[];
-          setNotes(noteArray);
-        } else {
-          setNotes(parsedNotes);
-        }
+      const savedNotes = storage.getNotes();
+      if (savedNotes && Object.keys(savedNotes).length > 0) {
+        const noteArray = Object.values(savedNotes) as Note[];
+        setNotes(noteArray);
       }
     } catch (error) {
       console.error('Failed to refresh notes:', error);
@@ -139,27 +120,13 @@ export function useNotes() {
 
     try {
       // Get existing notes
-      const savedNotes = localStorage.getItem(STORAGE_KEY);
-      let notesObject: Record<string, Note> = {};
-      
-      if (savedNotes) {
-        const parsedNotes = JSON.parse(savedNotes);
-        if (typeof parsedNotes === 'object' && !Array.isArray(parsedNotes)) {
-          notesObject = parsedNotes;
-        } else {
-          // Convert array to object format
-          notesObject = parsedNotes.reduce((acc: Record<string, Note>, note: Note) => {
-            acc[note.id] = note;
-            return acc;
-          }, {});
-        }
-      }
+      const notesObject = storage.getNotes() || {};
       
       // Add new note
       notesObject[newNote.id] = newNote;
       
       // Save to localStorage
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(notesObject));
+      storage.setNotes(notesObject);
       
       // Update state
       const noteArray = Object.values(notesObject) as Note[];

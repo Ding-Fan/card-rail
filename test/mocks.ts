@@ -1,22 +1,23 @@
 import { vi } from 'vitest'
 import { Note } from '../lib/types'
 
-// Centralized Next.js router mock
-export const createRouterMock = () => {
+// Utility functions for creating router mocks (to be used with vi.mock in each test file)
+export const createRouterMockFunctions = () => {
   const mockPush = vi.fn()
-  const mockBack = vi.fn()
+  const mockBack = vi.fn()  
   const mockReplace = vi.fn()
-  
-  vi.mock('next/navigation', () => ({
-    useRouter: () => ({
-      push: mockPush,
-      back: mockBack,
-      replace: mockReplace,
-    }),
-  }))
   
   return { mockPush, mockBack, mockReplace }
 }
+
+// Router mock factory for use in test files
+export const createRouterMockImplementation = (mocks: ReturnType<typeof createRouterMockFunctions>) => ({
+  useRouter: () => ({
+    push: mocks.mockPush,
+    back: mocks.mockBack,
+    replace: mocks.mockReplace,
+  }),
+})
 
 // Centralized localStorage mock
 export const createLocalStorageMock = () => {
@@ -80,7 +81,7 @@ export const createUseNotesMock = () => {
 export const setupTest = () => {
   vi.clearAllMocks()
   
-  const router = createRouterMock()
+  const router = createRouterMockFunctions()
   const localStorage = createLocalStorageMock()
   
   // Reset localStorage mock to return empty object by default

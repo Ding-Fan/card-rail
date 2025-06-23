@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from '../../../components/Card';
-import { DraggableFAB } from '../../../components/DraggableFAB';
 import { useNotes } from '../../../lib/useNotes';
+import { useFAB } from '../../../components/FABContext';
 import { Note } from '../../../lib/types';
 
 interface NoteViewClientProps {
@@ -14,6 +14,7 @@ interface NoteViewClientProps {
 export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
   const router = useRouter();
   const { notes, isLoading, getChildNotes, createNestedNote, getNoteById } = useNotes();
+  const { setCreateNoteHandler } = useFAB();
   const [currentNote, setCurrentNote] = useState<Note | null>(null);
   const [breadcrumbNotes, setBreadcrumbNotes] = useState<Note[]>([]);
   const [childNotes, setChildNotes] = useState<Note[]>([]);
@@ -59,16 +60,20 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
     router.push(`/note/${newPath.join('/')}`);
   };
 
+  // Register the create note handler with the global FAB
+  useEffect(() => {
+    setCreateNoteHandler(handleCreateNestedNote);
+    
+    // Cleanup: reset to default behavior when leaving this page
+    return () => setCreateNoteHandler(undefined);
+  }, [setCreateNoteHandler, currentNoteId, currentNote?.title, nestingLevel, notePath, createNestedNote, router]);
+
   const handleEditCurrentNote = () => {
     // Navigate to edit mode using existing edit route
     router.push(`/note/${currentNoteId}`);
   };
 
-  const handleCardTap = (noteId: string) => {
-    // Navigate deeper into the note hierarchy
-    const newPath = [...notePath, noteId];
-    router.push(`/note/${newPath.join('/')}`);
-  };
+  // Removed handleCardTap - card clicks should do nothing
 
   const handleBreadcrumbClick = (index: number) => {
     // Navigate to a specific level in the hierarchy
@@ -183,8 +188,8 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
           >
             <Card
               note={currentNote}
-              onTap={() => {}}
               showNestedIcon={false}
+              disableEntryAnimation={!isRootLevel}
             />
           </div>
         </div>
@@ -202,7 +207,6 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
                 <Card
                   key={note.id}
                   note={note}
-                  onTap={handleCardTap}
                   childCount={getChildNotes(note.id).length}
                   showNestedIcon={true}
                 />
@@ -242,9 +246,6 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
           </div>
         )}
       </div>
-
-      {/* Floating Action Button for creating nested notes */}
-      <DraggableFAB onCreateNote={handleCreateNestedNote} />
     </div>
   );
 };

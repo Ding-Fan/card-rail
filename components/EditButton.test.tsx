@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '../test/utils'
 import { Card } from './Card'
-import { Note } from '../lib/types'
+import { mockAnimejs, mockNotes } from '../test/mocks'
 
-// Mock Next.js router
+// Mock Next.js router - must be done at module level
 const mockPush = vi.fn()
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -11,26 +11,7 @@ vi.mock('next/navigation', () => ({
   }),
 }))
 
-// Mock animejs to avoid DOM manipulation during tests
-vi.mock('animejs', () => ({
-  default: vi.fn(() => ({
-    play: vi.fn(),
-    pause: vi.fn(),
-  })),
-}))
-
-const mockNote: Note = {
-  id: '1',
-  title: 'Test Note',
-  content: `# Test Note
-
-This is a **test** note with some *markdown* content.
-
-- Item 1
-- Item 2`,
-  created_at: '2025-06-16T10:00:00Z',
-  updated_at: '2025-06-16T10:00:00Z',
-}
+mockAnimejs()
 
 describe('Card Component - Edit Button', () => {
   beforeEach(() => {
@@ -38,7 +19,7 @@ describe('Card Component - Edit Button', () => {
   })
 
   it('should render an edit button in the card header', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     const editButton = screen.getByTestId('edit-button')
     expect(editButton).toBeInTheDocument()
@@ -49,7 +30,7 @@ describe('Card Component - Edit Button', () => {
   })
 
   it('should have proper edit button styling and icon', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     const editButton = screen.getByTestId('edit-button')
     expect(editButton).toHaveClass('bg-gray-400', 'text-white', 'rounded-full')
@@ -62,7 +43,7 @@ describe('Card Component - Edit Button', () => {
   })
 
   it('should navigate to edit page when edit button is clicked', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     const editButton = screen.getByTestId('edit-button')
     fireEvent.click(editButton)
@@ -71,19 +52,17 @@ describe('Card Component - Edit Button', () => {
   })
 
   it('should stop event propagation on edit button click', () => {
-    const onTap = vi.fn()
-    render(<Card note={mockNote} onTap={onTap} />)
+    render(<Card note={mockNotes.simple} />)
     
     const editButton = screen.getByTestId('edit-button')
     fireEvent.click(editButton)
     
-    // Card onTap should not be called when edit button is clicked
-    expect(onTap).not.toHaveBeenCalled()
+    // Edit button should work independently
     expect(mockPush).toHaveBeenCalledWith('/note/1?edit=true')
   })
 
   it('should be accessible with proper ARIA labels', () => {
-    render(<Card note={mockNote} />)
+    render(<Card note={mockNotes.simple} />)
     
     const editButton = screen.getByTestId('edit-button')
     expect(editButton).toHaveAttribute('aria-label', 'Edit note')

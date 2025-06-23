@@ -1,23 +1,35 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, act } from '../test/utils'
+import React from 'react'
 import { GlobalFAB } from './GlobalFAB'
+import { FABProvider, useFAB } from './FABContext'
+import { createLocalStorageMock } from '../test/mocks'
 
-// Mock Next.js router
+// Mock Next.js router - must be done at module level
 const mockPush = vi.fn()
-
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: mockPush,
   }),
 }))
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
+// Mock ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
+const localStorageMock = createLocalStorageMock()
+
+// Helper to render GlobalFAB with required context
+const renderGlobalFAB = (props = {}) => {
+  return render(
+    <FABProvider>
+      <GlobalFAB {...props} />
+    </FABProvider>
+  )
 }
-Object.defineProperty(window, 'localStorage', { value: localStorageMock })
 
 describe('GlobalFAB User Workflow Integration Tests', () => {
   beforeEach(() => {
@@ -27,15 +39,24 @@ describe('GlobalFAB User Workflow Integration Tests', () => {
 
   describe('Core User Workflow: Note Creation', () => {
     it('should allow user to click FAB and navigate to note creation', async () => {
-      render(<GlobalFAB />)
+      renderGlobalFAB()
       
       const fab = screen.getByTestId('draggable-fab')
       expect(fab).toBeInTheDocument()
-      expect(fab).toHaveAttribute('aria-label', 'Add new note')
+      expect(fab).toHaveAttribute('aria-label', 'Floating action menu')
       
-      // User clicks FAB to create new note
+      // User clicks FAB to open dropdown
       await act(async () => {
         fireEvent.click(fab)
+      })
+      
+      // Should show dropdown with "Add Note" option
+      const addNoteOption = await screen.findByText('Add Note')
+      expect(addNoteOption).toBeInTheDocument()
+      
+      // User clicks "Add Note" option
+      await act(async () => {
+        fireEvent.click(addNoteOption)
       })
       
       // Should navigate to note creation route
@@ -45,13 +66,35 @@ describe('GlobalFAB User Workflow Integration Tests', () => {
     it('should support custom note creation callback', async () => {
       const customCreateNote = vi.fn()
       
-      render(<GlobalFAB onCreateNote={customCreateNote} />)
+      // Create a test component that sets the custom handler
+      const TestComponent = () => {
+        const { setCreateNoteHandler } = useFAB()
+        React.useEffect(() => {
+          setCreateNoteHandler(customCreateNote)
+        }, [setCreateNoteHandler])
+        return null
+      }
+      
+      render(
+        <FABProvider>
+          <TestComponent />
+          <GlobalFAB />
+        </FABProvider>
+      )
       
       const fab = screen.getByTestId('draggable-fab')
       
-      // User clicks FAB with custom callback
+      // User clicks FAB to open dropdown
       await act(async () => {
         fireEvent.click(fab)
+      })
+      
+      // Should show dropdown with "Add Note" option
+      const addNoteOption = await screen.findByText('Add Note')
+      
+      // User clicks "Add Note" option
+      await act(async () => {
+        fireEvent.click(addNoteOption)
       })
       
       // Should call custom callback instead of navigation
@@ -60,7 +103,7 @@ describe('GlobalFAB User Workflow Integration Tests', () => {
     })
 
     it('should maintain consistent FAB design across different pages', () => {
-      render(<GlobalFAB />)
+      renderGlobalFAB()
       
       const fab = screen.getByTestId('draggable-fab')
       
@@ -72,13 +115,13 @@ describe('GlobalFAB User Workflow Integration Tests', () => {
       })
       
       // Verify FAB styling
-      expect(fab).toHaveClass('w-20', 'h-10', 'bg-stone-100', 'rounded-xl')
+      expect(fab).toHaveClass('w-20', 'h-10', 'bg-stone-100/80', 'rounded-xl')
     })
   })
 
   describe('Position Persistence Business Logic', () => {
     it('should start at golden spiral position when no saved position exists', () => {
-      render(<GlobalFAB />)
+      renderGlobalFAB()
       
       const fab = screen.getByTestId('draggable-fab')
       
@@ -94,7 +137,7 @@ describe('GlobalFAB User Workflow Integration Tests', () => {
       const savedPosition = { x: 250, y: 150 }
       localStorageMock.getItem.mockReturnValue(JSON.stringify(savedPosition))
       
-      render(<GlobalFAB />)
+      renderGlobalFAB()
       
       const fab = screen.getByTestId('draggable-fab')
       
@@ -107,7 +150,7 @@ describe('GlobalFAB User Workflow Integration Tests', () => {
       localStorageMock.getItem.mockReturnValue('invalid-json-data')
       
       // Should not crash when localStorage contains invalid data
-      expect(() => render(<GlobalFAB />)).not.toThrow()
+      expect(() => renderGlobalFAB()).not.toThrow()
       
       const fab = screen.getByTestId('draggable-fab')
       expect(fab).toBeInTheDocument()
@@ -123,7 +166,7 @@ describe('GlobalFAB User Workflow Integration Tests', () => {
       const savedPosition = { x: 900, y: 400 }
       localStorageMock.getItem.mockReturnValue(JSON.stringify(savedPosition))
       
-      render(<GlobalFAB />)
+      renderGlobalFAB()
       
       // Simulate window resize to smaller viewport
       act(() => {
@@ -144,7 +187,7 @@ describe('GlobalFAB User Workflow Integration Tests', () => {
 
   describe('Accessibility Support', () => {
     it('should be accessible via keyboard navigation', async () => {
-      render(<GlobalFAB />)
+      renderGlobalFAB()
       
       const fab = screen.getByTestId('draggable-fab')
       
@@ -157,11 +200,13 @@ describe('GlobalFAB User Workflow Integration Tests', () => {
         fireEvent.keyDown(fab, { key: 'Enter' })
       })
       
-      expect(mockPush).toHaveBeenCalledWith('/note/new')
+      // Should show dropdown
+      const addNoteOption = await screen.findByText('Add Note')
+      expect(addNoteOption).toBeInTheDocument()
     })
 
     it('should respond to Space key activation', async () => {
-      render(<GlobalFAB />)
+      renderGlobalFAB()
       
       const fab = screen.getByTestId('draggable-fab')
       
@@ -170,34 +215,41 @@ describe('GlobalFAB User Workflow Integration Tests', () => {
         fireEvent.keyDown(fab, { key: ' ' })
       })
       
-      expect(mockPush).toHaveBeenCalledWith('/note/new')
+      // Should show dropdown
+      const addNoteOption = await screen.findByText('Add Note')
+      expect(addNoteOption).toBeInTheDocument()
     })
 
     it('should have proper accessibility attributes', () => {
-      render(<GlobalFAB />)
+      renderGlobalFAB()
       
       const fab = screen.getByTestId('draggable-fab')
       
-      expect(fab).toHaveAttribute('aria-label', 'Add new note')
+      expect(fab).toHaveAttribute('aria-label', 'Floating action menu')
       expect(fab).toHaveAttribute('role', 'button')
     })
   })
 
   describe('Error Handling', () => {
-    it('should continue working when localStorage is disabled', () => {
+    it('should continue working when localStorage is disabled', async () => {
       localStorageMock.setItem.mockImplementation(() => {
         throw new Error('localStorage unavailable')
       })
       
       // Should render without errors even if localStorage fails
-      expect(() => render(<GlobalFAB />)).not.toThrow()
+      expect(() => renderGlobalFAB()).not.toThrow()
       
       const fab = screen.getByTestId('draggable-fab')
       expect(fab).toBeInTheDocument()
       
       // Should still be clickable
-      fireEvent.click(fab)
-      expect(mockPush).toHaveBeenCalledWith('/note/new')
+      await act(async () => {
+        fireEvent.click(fab)
+      })
+      
+      // Should show dropdown
+      const addNoteOption = await screen.findByText('Add Note')
+      expect(addNoteOption).toBeInTheDocument()
     })
   })
 })
