@@ -87,7 +87,7 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
     <div
       ref={cardRef}
       data-testid="note-card"
-      className={`w-full bg-white rounded-lg shadow-lg p-6 flex flex-col relative
+      className={`w-full bg-white rounded-lg shadow-lg p-6 flex flex-col relative overflow-hidden
         transition-all duration-600 ease-out
         ${heightClass}
         ${isAnimated
@@ -95,10 +95,11 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
           : 'opacity-0 scale-95 translate-y-4'
         }`}
     >
-      {/* Card Content - Full height */}
+      {/* Card Content - Full height with dimming overlay when menu is open */}
       <div
         data-testid="card-content-wrapper"
-        className="h-full relative overflow-hidden"
+        className={`h-full relative overflow-hidden transition-opacity duration-300 ${isMenuOpen ? 'opacity-30' : 'opacity-100'
+          }`}
       >
         <div
           data-testid="card-content"
@@ -143,56 +144,63 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
           </div>
         </div>
 
-        {/* Fade mask for overflow indication */}
+        {/* Fade mask for overflow indication - adjusted when menu is open */}
         <div
           data-testid="fade-mask"
-          className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"
+          className={`absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none transition-opacity duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'
+            }`}
         />
       </div>
 
-      {/* 3-Dot Menu in bottom-right corner */}
-      <div className="absolute bottom-4 right-4 z-10">
-        <div className="relative" ref={menuRef}>
-          <button
-            data-testid="card-menu-button"
-            onClick={toggleMenu}
-            aria-label="Card options"
-            className="w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full shadow-sm transition-colors flex items-center justify-center"
+      {/* 3-Dot Menu Button - positioned above the drawer */}
+      <div className="absolute bottom-4 right-4 z-20" ref={menuRef}>
+        <button
+          data-testid="card-menu-button"
+          onClick={toggleMenu}
+          aria-label="Card options"
+          className="w-8 h-8 bg-gray-100/80 hover:bg-gray-200/80 text-gray-600 rounded-full shadow-sm transition-all duration-300 flex items-center justify-center backdrop-blur-sm"
+        >
+          <svg
+            className={`w-4 h-4 transition-transform duration-300 ${isMenuOpen ? 'rotate-45' : 'rotate-0'}`}
+            fill="currentColor"
+            viewBox="0 0 20 20"
           >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-            </svg>
-          </button>
+            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+          </svg>
+        </button>
+      </div>
 
-          {/* Dropdown Menu */}
-          {isMenuOpen && (
-            <div className="absolute bottom-full right-0 mb-2 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[120px] z-20">
-              <button
-                onClick={handleEditClick}
-                className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-              >
-                <svg className="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                Edit
-              </button>
-              <button
-                onClick={handleArchiveClick}
-                className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                </svg>
-                Archive
-              </button>
-            </div>
-          )}
+      {/* Integrated Drawer Menu - slides up from inside the card */}
+      <div
+        className={`absolute bottom-6 left-6 right-6 bg-gray-50/95 backdrop-blur-sm border border-gray-200/50 rounded-lg shadow-sm transform transition-transform duration-300 ease-out z-10 ${isMenuOpen ? 'translate-y-0' : 'translate-y-full'
+          }`}
+      >
+        <div className="px-4 py-3 space-y-0">
+          <button
+            onClick={handleEditClick}
+            className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors rounded-md border-b border-gray-200/50 last:border-b-0"
+          >
+            <svg className="w-5 h-5 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Edit Note
+          </button>
+          <button
+            onClick={handleArchiveClick}
+            className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors rounded-md"
+          >
+            <svg className="w-5 h-5 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+            Archive Note
+          </button>
         </div>
       </div>
 
-      {/* Nested Notes Navigation Icon */}
+      {/* Nested Notes Navigation Icon - positioned higher when menu is open */}
       {showNestedIcon && childCount > 0 && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
+        <div className={`absolute left-1/2 transform -translate-x-1/2 z-10 transition-all duration-300 ${isMenuOpen ? 'bottom-20' : 'bottom-4'
+          }`}>
           <button
             data-testid="nested-notes-button"
             onClick={handleNestedClick}
