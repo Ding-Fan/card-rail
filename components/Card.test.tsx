@@ -281,25 +281,32 @@ describe('Card Component', () => {
       expect(screen.queryByText('Delete Note')).not.toBeInTheDocument()
     })
 
-    it('should show delete confirmation dialog when "Delete Note" is clicked', () => {
+    it('should show delete confirmation in drawer when "Delete Note" is clicked', () => {
       render(<Card note={mockNotes.simple} isArchiveMode={true} />)
 
       const menuButton = screen.getByTestId('card-menu-button')
+      const drawerMenu = screen.getByTestId('card-drawer-menu')
       fireEvent.click(menuButton)
 
       const deleteMenuItem = screen.getByTestId('delete-note-button')
       fireEvent.click(deleteMenuItem)
 
-      // Should show confirmation dialog
+      // Drawer should still be open but showing confirmation content
+      expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
+      expect(screen.getByText('Delete Note')).toBeInTheDocument() // Header
       expect(screen.getByText('Are you sure you want to permanently delete this note? This action cannot be undone.')).toBeInTheDocument()
       expect(screen.getByText('Cancel')).toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument()
+
+      // Menu items should no longer be visible
+      expect(screen.queryByText('Edit Note')).not.toBeInTheDocument()
     })
 
-    it('should close confirmation dialog when "Cancel" is clicked', () => {
+    it('should return to menu when "Cancel" is clicked in confirmation', () => {
       render(<Card note={mockNotes.simple} isArchiveMode={true} />)
 
       const menuButton = screen.getByTestId('card-menu-button')
+      const drawerMenu = screen.getByTestId('card-drawer-menu')
       fireEvent.click(menuButton)
 
       const deleteMenuItem = screen.getByTestId('delete-note-button')
@@ -308,8 +315,32 @@ describe('Card Component', () => {
       const cancelButton = screen.getByText('Cancel')
       fireEvent.click(cancelButton)
 
-      // Confirmation dialog should be gone
+      // Should return to menu state
+      expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
+      expect(screen.getByText('Edit Note')).toBeInTheDocument()
+      expect(screen.getByText('Delete Note')).toBeInTheDocument()
       expect(screen.queryByText('Are you sure you want to permanently delete this note?')).not.toBeInTheDocument()
+    })
+
+    it('should show archive confirmation in drawer when "Archive Note" is clicked', () => {
+      render(<Card note={mockNotes.simple} />)
+
+      const menuButton = screen.getByTestId('card-menu-button')
+      const drawerMenu = screen.getByTestId('card-drawer-menu')
+      fireEvent.click(menuButton)
+
+      const archiveMenuItem = screen.getByTestId('archive-note-button')
+      fireEvent.click(archiveMenuItem)
+
+      // Drawer should still be open but showing confirmation content
+      expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
+      expect(screen.getByText('Archive Note')).toBeInTheDocument() // Header
+      expect(screen.getByText('Are you sure you want to archive this note?')).toBeInTheDocument()
+      expect(screen.getByText('Cancel')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Archive' })).toBeInTheDocument()
+
+      // Menu items should no longer be visible
+      expect(screen.queryByText('Edit Note')).not.toBeInTheDocument()
     })
 
     it('should call onDelete callback when "Delete" is confirmed', () => {
