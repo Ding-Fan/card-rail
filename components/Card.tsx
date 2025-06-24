@@ -8,6 +8,7 @@ import { Note } from '../lib/types';
 import { useCardHeight, CARD_HEIGHT_RATIOS } from '../lib/cardHeight';
 import { storage } from '../lib/storage';
 import { ArchiveConfirmBubble } from './ArchiveConfirmBubble';
+import { DeleteConfirmBubble } from './DeleteConfirmBubble';
 
 interface CardProps {
   note: Note;
@@ -15,15 +16,18 @@ interface CardProps {
   showNestedIcon?: boolean; // Whether to show the nested notes icon
   disableEntryAnimation?: boolean; // Disable the default entry animation
   onArchived?: () => void; // Callback when note is archived
+  isArchiveMode?: boolean; // Whether the card is displayed in archive mode
+  onDelete?: (noteId: string) => void; // Callback when note is deleted permanently
 }
 
-export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon = true, disableEntryAnimation = false, onArchived }) => {
+export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon = true, disableEntryAnimation = false, onArchived, isArchiveMode = false, onDelete }) => {
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [isAnimated, setIsAnimated] = React.useState(disableEntryAnimation);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const cardHeight = useCardHeight(note);
 
   // Calculate viewport height class based on measured content
@@ -74,18 +78,15 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
   // Calculate archive bubble position safely
   const getArchiveBubblePosition = () => {
     if (!cardRef.current) {
-      console.log('No cardRef available');
       return { x: 100, y: 100 }; // Fallback position
     }
 
     const cardRect = cardRef.current.getBoundingClientRect();
-    console.log('Card rect:', cardRect);
 
     // Simple positioning - place bubble above and to the left of the card
     const x = Math.max(20, cardRect.left - 50);
     const y = Math.max(20, cardRect.top - 100);
 
-    console.log('Bubble position:', { x, y });
     return { x, y };
   };
 
@@ -99,6 +100,18 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
 
   const handleArchiveCancel = () => {
     setShowArchiveConfirm(false);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (onDelete) {
+      onDelete(note.id);
+    }
+    setShowDeleteConfirm(false);
+    setIsMenuOpen(false);
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteConfirm(false);
   };
 
   const handleNestedClick = (e: React.MouseEvent) => {
@@ -217,32 +230,49 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
               </svg>
               Edit Note
             </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleArchiveClick(e);
-              }}
-              onMouseDown={(e) => {
-                e.stopPropagation();
-                // For desktop, trigger on mousedown to be more responsive
-                handleArchiveClick(e);
-              }}
-              onTouchEnd={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                // For mobile, use touchend instead of click
-                handleArchiveClick(e);
-              }}
-              style={{ touchAction: 'manipulation' }}
-              className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors rounded-md"
-              data-testid="archive-note-button"
-            >
-              <svg className="w-5 h-5 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-              </svg>
-              Archive Note
-            </button>
+            {isArchiveMode ? (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowDeleteConfirm(true);
+                }}
+                className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors rounded-md"
+                data-testid="delete-note-button"
+              >
+                <svg className="w-5 h-5 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete Note
+              </button>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleArchiveClick(e);
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  // For desktop, trigger on mousedown to be more responsive
+                  handleArchiveClick(e);
+                }}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  // For mobile, use touchend instead of click
+                  handleArchiveClick(e);
+                }}
+                style={{ touchAction: 'manipulation' }}
+                className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors rounded-md"
+                data-testid="archive-note-button"
+              >
+                <svg className="w-5 h-5 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+                Archive Note
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -288,6 +318,14 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
         onConfirm={handleArchiveConfirm}
         onCancel={handleArchiveCancel}
       />
+
+      {/* Delete Confirmation Bubble */}
+      {showDeleteConfirm && (
+        <DeleteConfirmBubble
+          onConfirm={handleDeleteConfirm}
+          onCancel={handleDeleteCancel}
+        />
+      )}
     </div>
   );
 };

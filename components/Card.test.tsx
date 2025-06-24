@@ -254,4 +254,100 @@ describe('Card Component', () => {
     fireEvent.click(menuButton)
     expect(drawerMenu).toHaveAttribute('data-menu-open', 'false')
   })
+
+  // Archive Mode Tests
+  describe('Archive Mode', () => {
+    it('should show "Delete Note" instead of "Archive Note" when in archive mode', () => {
+      render(<Card note={mockNotes.simple} isArchiveMode={true} />)
+
+      const menuButton = screen.getByTestId('card-menu-button')
+      fireEvent.click(menuButton)
+
+      // Should show Edit Note and Delete Note (not Archive Note)
+      expect(screen.getByText('Edit Note')).toBeInTheDocument()
+      expect(screen.getByText('Delete Note')).toBeInTheDocument()
+      expect(screen.queryByText('Archive Note')).not.toBeInTheDocument()
+    })
+
+    it('should show "Archive Note" when not in archive mode (default)', () => {
+      render(<Card note={mockNotes.simple} />)
+
+      const menuButton = screen.getByTestId('card-menu-button')
+      fireEvent.click(menuButton)
+
+      // Should show Edit Note and Archive Note (not Delete Note)
+      expect(screen.getByText('Edit Note')).toBeInTheDocument()
+      expect(screen.getByText('Archive Note')).toBeInTheDocument()
+      expect(screen.queryByText('Delete Note')).not.toBeInTheDocument()
+    })
+
+    it('should show delete confirmation dialog when "Delete Note" is clicked', () => {
+      render(<Card note={mockNotes.simple} isArchiveMode={true} />)
+
+      const menuButton = screen.getByTestId('card-menu-button')
+      fireEvent.click(menuButton)
+
+      const deleteMenuItem = screen.getByTestId('delete-note-button')
+      fireEvent.click(deleteMenuItem)
+
+      // Should show confirmation dialog
+      expect(screen.getByText('Are you sure you want to permanently delete this note? This action cannot be undone.')).toBeInTheDocument()
+      expect(screen.getByText('Cancel')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument()
+    })
+
+    it('should close confirmation dialog when "Cancel" is clicked', () => {
+      render(<Card note={mockNotes.simple} isArchiveMode={true} />)
+
+      const menuButton = screen.getByTestId('card-menu-button')
+      fireEvent.click(menuButton)
+
+      const deleteMenuItem = screen.getByTestId('delete-note-button')
+      fireEvent.click(deleteMenuItem)
+
+      const cancelButton = screen.getByText('Cancel')
+      fireEvent.click(cancelButton)
+
+      // Confirmation dialog should be gone
+      expect(screen.queryByText('Are you sure you want to permanently delete this note?')).not.toBeInTheDocument()
+    })
+
+    it('should call onDelete callback when "Delete" is confirmed', () => {
+      const mockOnDelete = vi.fn()
+      render(<Card note={mockNotes.simple} isArchiveMode={true} onDelete={mockOnDelete} />)
+
+      const menuButton = screen.getByTestId('card-menu-button')
+      fireEvent.click(menuButton)
+
+      const deleteMenuItem = screen.getByTestId('delete-note-button')
+      fireEvent.click(deleteMenuItem)
+
+      const confirmDeleteButton = screen.getByRole('button', { name: 'Delete' })
+      fireEvent.click(confirmDeleteButton)
+
+      // Should call onDelete with note id
+      expect(mockOnDelete).toHaveBeenCalledWith('1')
+    })
+
+    it('should close menu and confirmation dialog after successful delete', () => {
+      const mockOnDelete = vi.fn()
+      render(<Card note={mockNotes.simple} isArchiveMode={true} onDelete={mockOnDelete} />)
+
+      const menuButton = screen.getByTestId('card-menu-button')
+      const drawerMenu = screen.getByTestId('card-drawer-menu')
+
+      fireEvent.click(menuButton)
+      expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
+
+      const deleteMenuItem = screen.getByTestId('delete-note-button')
+      fireEvent.click(deleteMenuItem)
+
+      const confirmDeleteButton = screen.getByRole('button', { name: 'Delete' })
+      fireEvent.click(confirmDeleteButton)
+
+      // Menu should be closed and confirmation dialog should be gone
+      expect(drawerMenu).toHaveAttribute('data-menu-open', 'false')
+      expect(screen.queryByText('Are you sure you want to permanently delete this note?')).not.toBeInTheDocument()
+    })
+  })
 })

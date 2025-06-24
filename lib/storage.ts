@@ -14,6 +14,7 @@ export interface StorageUtils {
   setNote: (id: string, note: Note) => boolean
   removeNote: (id: string) => boolean
   archiveNote: (id: string) => boolean
+  deleteNote: (id: string) => boolean
   getArchivedNotes: () => Note[]
   getActiveNotes: () => Note[]
   getFabPosition: () => { x: number; y: number } | null
@@ -118,6 +119,15 @@ class SafeStorage implements StorageUtils {
     }
     
     return this.setNote(id, archivedNote)
+  }
+
+  deleteNote(id: string): boolean {
+    const notes = this.getNotes()
+    if (!notes || !notes[id]) return false
+    
+    // Permanently delete the note
+    delete notes[id]
+    return this.setNotes(notes)
   }
 
   getArchivedNotes(): Note[] {

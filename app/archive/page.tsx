@@ -41,6 +41,16 @@ export default function ArchivePage() {
         return parentTitle.length > 30 ? parentTitle.substring(0, 30) + '...' : parentTitle;
     };
 
+    // Handle permanent deletion of archived notes
+    const handleDeleteNote = (noteId: string) => {
+        const success = storage.deleteNote(noteId);
+        if (success) {
+            // Reload archived notes
+            const archived = storage.getArchivedNotes();
+            setArchivedNotes(archived);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 p-4">
             <div className="max-w-4xl mx-auto">
@@ -95,13 +105,15 @@ export default function ArchivePage() {
                                         </div>
                                     )}
 
-                                    {/* Archived card - no interactions */}
+                                    {/* Archived card - with delete functionality */}
                                     <div className="opacity-75">
                                         <Card
                                             note={note}
                                             childCount={0}
                                             showNestedIcon={false}
                                             disableEntryAnimation={true}
+                                            isArchiveMode={true}
+                                            onDelete={handleDeleteNote}
                                         />
                                     </div>
                                 </div>
