@@ -44,21 +44,17 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
     return () => clearTimeout(timer);
   }, [disableEntryAnimation]);
 
-  // Close menu when clicking outside
+  // Remove click outside functionality - menu should only be controlled by button
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    if (isMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
+    // Menu should only be controlled by the 3-dot button, not by clicking outside
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      // No cleanup needed
     };
+  }, [isMenuOpen]);
+
+  // Debug logging for menu state
+  useEffect(() => {
+    // Menu state logging removed - functionality working as expected
   }, [isMenuOpen]);
 
   // Removed handleClick - card clicks should do nothing
@@ -69,9 +65,8 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
     router.push(`/note/${note.id}?edit=true`);
   };
 
-  const handleArchiveClick = (e: React.MouseEvent) => {
+  const handleArchiveClick = (e: React.SyntheticEvent) => {
     e.stopPropagation();
-    console.log('Archive clicked, setting showArchiveConfirm to true');
     setIsMenuOpen(false);
     setShowArchiveConfirm(true);
   };
@@ -186,13 +181,13 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
         />
       </div>
 
-      {/* 3-Dot Menu Button - positioned above the drawer */}
-      <div className="absolute bottom-4 right-4 z-20" ref={menuRef}>
+      {/* 3-Dot Menu Button - positioned above the drawer with higher z-index */}
+      <div className="absolute bottom-4 right-4 z-30" ref={menuRef}>
         <button
           data-testid="card-menu-button"
           onClick={toggleMenu}
           aria-label="Card options"
-          className="w-8 h-8 bg-gray-100/80 hover:bg-gray-200/80 text-gray-600 rounded-full shadow-sm transition-all duration-300 flex items-center justify-center backdrop-blur-sm"
+          className="w-8 h-8 bg-gray-100 hover:bg-gray-200/80 text-gray-600 rounded-full shadow-sm transition-all duration-300 flex items-center justify-center backdrop-blur-sm"
         >
           <svg
             className={`w-4 h-4 transition-transform duration-300 ${isMenuOpen ? 'rotate-45' : 'rotate-0'}`}
@@ -223,8 +218,25 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
               Edit Note
             </button>
             <button
-              onClick={handleArchiveClick}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleArchiveClick(e);
+              }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                // For desktop, trigger on mousedown to be more responsive
+                handleArchiveClick(e);
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // For mobile, use touchend instead of click
+                handleArchiveClick(e);
+              }}
+              style={{ touchAction: 'manipulation' }}
               className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors rounded-md"
+              data-testid="archive-note-button"
             >
               <svg className="w-5 h-5 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />

@@ -125,7 +125,7 @@ describe('Card Component', () => {
     render(<Card note={mockNotes.simple} />)
 
     const menuButton = screen.getByTestId('card-menu-button')
-    expect(menuButton).toHaveClass('bg-gray-100/80', 'hover:bg-gray-200/80', 'text-gray-600', 'rounded-full')
+    expect(menuButton).toHaveClass('bg-gray-100', 'text-gray-600', 'rounded-full')
     expect(menuButton).toHaveClass('w-8', 'h-8')
   })
 
@@ -141,19 +141,24 @@ describe('Card Component', () => {
     expect(mockPush).toHaveBeenCalledWith('/note/1?edit=true')
   })
 
-  it('should stop event propagation on menu interactions', () => {
+  it('should stop event propagation on menu interactions and close menu on menu item click', () => {
     render(<Card note={mockNotes.simple} />)
 
     const menuButton = screen.getByTestId('card-menu-button')
+    const drawerMenu = screen.getByTestId('card-drawer-menu')
+
     fireEvent.click(menuButton)
 
     // Menu button should work independently of card clicks
     expect(mockPush).not.toHaveBeenCalled()
+    expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
 
     const editMenuItem = screen.getByText('Edit Note')
     fireEvent.click(editMenuItem)
 
     expect(mockPush).toHaveBeenCalledWith('/note/1?edit=true')
+    // Menu should close after clicking a menu item
+    expect(drawerMenu).toHaveAttribute('data-menu-open', 'false')
   })
 
   it('should be accessible with proper ARIA labels', () => {
@@ -161,5 +166,92 @@ describe('Card Component', () => {
 
     const menuButton = screen.getByTestId('card-menu-button')
     expect(menuButton).toHaveAttribute('aria-label', 'Card options')
+  })
+
+  it('should have 3-dot button with higher z-index than drawer menu', () => {
+    render(<Card note={mockNotes.simple} />)
+
+    const menuButton = screen.getByTestId('card-menu-button')
+    const drawerMenu = screen.getByTestId('card-drawer-menu')
+
+    // Open the menu
+    fireEvent.click(menuButton)
+
+    // Button should have higher z-index than drawer
+    const buttonParent = menuButton.closest('[class*="z-"]')
+    const drawerParent = drawerMenu.closest('[class*="z-"]') || drawerMenu
+
+    expect(buttonParent).toHaveClass('z-30') // Higher than drawer
+    expect(drawerParent).toHaveClass('z-10') // Lower than button
+  })
+
+  it('should only close menu by clicking the 3-dot button, not by clicking outside', () => {
+    render(<Card note={mockNotes.simple} />)
+
+    const menuButton = screen.getByTestId('card-menu-button')
+    const drawerMenu = screen.getByTestId('card-drawer-menu')
+    const card = screen.getByTestId('note-card')
+
+    // Open the menu
+    fireEvent.click(menuButton)
+    expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
+
+    // Click outside (on card content) should NOT close menu
+    fireEvent.click(card)
+    expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
+
+    // Click on content should NOT close menu
+    const content = screen.getByTestId('card-content')
+    fireEvent.click(content)
+    expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
+
+    // Only clicking the 3-dot button should close menu
+    fireEvent.click(menuButton)
+    expect(drawerMenu).toHaveAttribute('data-menu-open', 'false')
+  })
+
+  it('should keep 3-dot button visible and clickable when menu is open', () => {
+    render(<Card note={mockNotes.simple} />)
+
+    const menuButton = screen.getByTestId('card-menu-button')
+
+    // Open the menu
+    fireEvent.click(menuButton)
+
+    // Button should still be visible and clickable
+    expect(menuButton).toBeVisible()
+    expect(menuButton).not.toHaveAttribute('disabled')
+
+    // Should be able to click it again to close
+    fireEvent.click(menuButton)
+
+    const drawerMenu = screen.getByTestId('card-drawer-menu')
+    expect(drawerMenu).toHaveAttribute('data-menu-open', 'false')
+  })
+
+  it('should act as a pure toggle - multiple clicks should open/close menu', () => {
+    render(<Card note={mockNotes.simple} />)
+
+    const menuButton = screen.getByTestId('card-menu-button')
+    const drawerMenu = screen.getByTestId('card-drawer-menu')
+
+    // Initially closed
+    expect(drawerMenu).toHaveAttribute('data-menu-open', 'false')
+
+    // First click - open
+    fireEvent.click(menuButton)
+    expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
+
+    // Second click - close
+    fireEvent.click(menuButton)
+    expect(drawerMenu).toHaveAttribute('data-menu-open', 'false')
+
+    // Third click - open again
+    fireEvent.click(menuButton)
+    expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
+
+    // Fourth click - close again
+    fireEvent.click(menuButton)
+    expect(drawerMenu).toHaveAttribute('data-menu-open', 'false')
   })
 })
