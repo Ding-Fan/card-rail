@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { GlobalFAB } from "../components/FAB/GlobalFAB";
 import { FABProvider } from "../components/FAB/FABContext";
+import { JotaiProvider } from "../lib/JotaiProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,10 +30,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <FABProvider>
-          {children}
-          <GlobalFAB />
-        </FABProvider>
+        <JotaiProvider>
+          <FABProvider>
+            {children}
+            <GlobalFAB />
+          </FABProvider>
+        </JotaiProvider>
       </body>
     </html>
   );

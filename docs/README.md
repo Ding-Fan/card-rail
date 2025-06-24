@@ -6,17 +6,19 @@ A beautiful, Instagram Stories-inspired note-taking application built with Next.
 
 - 📱 **Mobile-First Design** - Optimized for vertical scrolling like social media stories
 - 💾 **Local-First Architecture** - All data stored locally with automatic persistence
-- 📝 **Markdown Support** - Write in markdown, see it rendered beautifully
+- � **Jotai State Management** - Reactive atomic state management for optimal performance
+- �📝 **Markdown Support** - Write in markdown, see it rendered beautifully
 - 🎨 **Enhanced Card UI** - 3-dot menu system with drawer-style interactions
 - 📚 **Vertical Card Stream** - Smooth scrolling through notes with snap-to-card behavior
 - 🗃️ **Note Archiving** - Complete archive workflow with confirmation and dedicated archive page
 - 🎯 **Draggable FAB** - Persistent floating action button with customizable positioning
 - 🧭 **Enhanced Navigation** - Scroll indicators, touch gestures, and smooth animations
-- 🔄 **Real-time Data Sync** - Seamless synchronization between pages
+- 🔄 **Real-time Data Sync** - Seamless synchronization between pages with reactive state
 - 📱 **Offline-Capable** - Works completely offline with localStorage persistence
 - ⚡ **Performance Optimized** - Lightweight ~150kB bundle with CSS-only animations
-- 🧪 **Test-Driven Development** - 80+ tests passing with comprehensive TDD coverage
+- 🧪 **Test-Driven Development** - 68+ tests passing with comprehensive TDD coverage
 - 🚀 **Next.js 15** - Latest App Router with TypeScript
+- 🎭 **Unified Drawer UI** - Consistent action interface with anime.js animations
 
 ## Key Design Principles
 

@@ -14,7 +14,9 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
     isOpen,
     position,
     onAddNote,
-    onViewArchive
+    onAddSubnote,
+    onViewArchive,
+    isInNoteView = false
 }) => {
     const [showLabels, setShowLabels] = useState(false);
 
@@ -65,6 +67,29 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                             </svg>
                         </button>
                     </div>
+
+                    {/* Create Subnote Button - only show in note view */}
+                    {isInNoteView && onAddSubnote && (
+                        <div className="flex items-center gap-3">
+                            {/* Text label - positioned to the left */}
+                            <button
+                                onClick={onAddSubnote}
+                                className={`bg-green-600/90 text-white px-3 py-1 rounded-lg text-sm font-medium transition-all duration-500 delay-50 hover:bg-green-700/90 ${showLabels ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
+                                    }`}
+                            >
+                                Create Subnote Here
+                            </button>
+                            {/* Icon button */}
+                            <button
+                                onClick={onAddSubnote}
+                                className="w-12 h-12 bg-white/95 backdrop-blur-md rounded-full shadow-xl border border-gray-200/50 flex items-center justify-center hover:bg-gray-50 transition-colors animate-in fade-in-0 zoom-in-95 duration-200"
+                            >
+                                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </button>
+                        </div>
+                    )}
 
                     {/* View Archive Button */}
                     <div className="flex items-center gap-3">

@@ -1,32 +1,45 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Card } from '../components/Card';
-import { useNotes } from '../lib/useNotes';
+import {
+  topLevelNotesAtom,
+  notesLoadingAtom,
+  initializeNotesAtom,
+  getChildNotesAtom
+} from '../lib/atoms';
 
 export default function Home() {
-  const { isLoading, refreshNotes, getTopLevelNotes, getChildNotes } = useNotes();
-  const containerRef = useRef<HTMLDivElement>(null);
+  // Jotai state management
+  const topLevelNotes = useAtomValue(topLevelNotesAtom);
+  const isLoading = useAtomValue(notesLoadingAtom);
+  const initializeNotes = useSetAtom(initializeNotesAtom);
+  const getChildNotes = useAtomValue(getChildNotesAtom);
 
-  // Get only top-level notes (no parent)
-  const topLevelNotes = getTopLevelNotes();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Touch/swipe state
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
 
-  // Refresh notes when component mounts or becomes visible
+  // Initialize notes when component mounts
+  useEffect(() => {
+    initializeNotes();
+  }, [initializeNotes]);
+
+  // Refresh notes when component becomes visible
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         // Page became visible, refresh notes
-        refreshNotes();
+        initializeNotes();
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [refreshNotes]);
+  }, [initializeNotes]);
 
   // Handle scroll to update current card index
   useEffect(() => {
@@ -101,7 +114,7 @@ export default function Home() {
                 note={note}
                 childCount={getChildNotes(note.id).length}
                 showNestedIcon={true}
-                onArchived={refreshNotes}
+                onArchived={() => { }}
               />
             </div>
           ))

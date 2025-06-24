@@ -41,5 +41,7 @@ export interface FloatingMenuProps {
   isOpen: boolean;
   position: MenuPosition;
   onAddNote: () => void;
+  onAddSubnote?: () => void;
   onViewArchive: () => void;
+  isInNoteView?: boolean;
 }

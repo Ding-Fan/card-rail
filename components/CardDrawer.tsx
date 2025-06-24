@@ -8,6 +8,7 @@ type DrawerState = 'closed' | 'menu' | 'archive-confirm' | 'delete-confirm';
 interface CardDrawerProps {
     drawerState: DrawerState;
     isArchiveMode?: boolean;
+    subnoteCount?: number;
     onEditClick: () => void;
     onArchiveClick: () => void;
     onDeleteClick: () => void;
@@ -20,6 +21,7 @@ interface CardDrawerProps {
 export const CardDrawer: React.FC<CardDrawerProps> = ({
     drawerState,
     isArchiveMode = false,
+    subnoteCount = 0,
     onEditClick,
     onArchiveClick,
     onDeleteClick,
@@ -134,6 +136,11 @@ export const CardDrawer: React.FC<CardDrawerProps> = ({
                         <h3 className="text-lg font-semibold text-orange-900 mb-2">Archive Note</h3>
                         <p className="text-sm text-orange-700 mb-4">
                             Are you sure you want to archive this note?
+                            {subnoteCount > 0 && (
+                                <span className="block mt-1 font-medium">
+                                    This will also archive {subnoteCount} subnote{subnoteCount !== 1 ? 's' : ''}.
+                                </span>
+                            )}
                         </p>
                         <div className="flex space-x-3 justify-center">
                             <button
@@ -158,6 +165,11 @@ export const CardDrawer: React.FC<CardDrawerProps> = ({
                         <h3 className="text-lg font-semibold text-red-900 mb-2">Delete Note</h3>
                         <p className="text-sm text-red-700 mb-4">
                             Are you sure you want to permanently delete this note? This action cannot be undone.
+                            {subnoteCount > 0 && (
+                                <span className="block mt-1 font-medium">
+                                    This will also delete {subnoteCount} subnote{subnoteCount !== 1 ? 's' : ''}.
+                                </span>
+                            )}
                         </p>
                         <div className="flex space-x-3 justify-center">
                             <button

@@ -1,40 +1,38 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAtomValue, useSetAtom } from 'jotai';
+import {
+    archivedNotesAtom,
+    notesLoadingAtom,
+    initializeNotesAtom,
+    notesMapAtom,
+    deleteNoteAtom
+} from '../../lib/atoms';
 import { Note } from '../../lib/types';
-import { storage } from '../../lib/storage';
 import { Card } from '../../components/Card';
 
 export default function ArchivePage() {
     const router = useRouter();
-    const [archivedNotes, setArchivedNotes] = useState<Note[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
 
-    // Load archived notes
+    // Jotai state management
+    const archivedNotes = useAtomValue(archivedNotesAtom);
+    const isLoading = useAtomValue(notesLoadingAtom);
+    const initializeNotes = useSetAtom(initializeNotesAtom);
+    const notesMap = useAtomValue(notesMapAtom);
+    const deleteNote = useSetAtom(deleteNoteAtom);
+
+    // Initialize notes when component mounts
     useEffect(() => {
-        const loadArchivedNotes = () => {
-            try {
-                const archived = storage.getArchivedNotes();
-                setArchivedNotes(archived);
-            } catch (error) {
-                console.error('Failed to load archived notes:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        loadArchivedNotes();
-    }, []);
+        initializeNotes();
+    }, [initializeNotes]);
 
     // Get parent note title for archived notes
     const getParentInfo = (note: Note): string => {
         if (!note.originalParentId) return '';
 
-        const allNotes = storage.getNotes();
-        if (!allNotes) return '';
-
-        const parentNote = allNotes[note.originalParentId];
+        const parentNote = notesMap[note.originalParentId];
         if (!parentNote) return '';
 
         const parentTitle = parentNote.title || parentNote.content.split('\n')[0] || 'Untitled';
@@ -42,13 +40,8 @@ export default function ArchivePage() {
     };
 
     // Handle permanent deletion of archived notes
-    const handleDeleteNote = (noteId: string) => {
-        const success = storage.deleteNote(noteId);
-        if (success) {
-            // Reload archived notes
-            const archived = storage.getArchivedNotes();
-            setArchivedNotes(archived);
-        }
+    const handleDeleteNote = async (noteId: string) => {
+        await deleteNote(noteId);
     };
 
     return (

@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from '../../../components/Card';
-import { useNotes } from '../../../lib/useNotes';
+import { useAtomValue } from 'jotai';
+import { activeNotesAtom, getNoteByIdAtom, getChildNotesAtom } from '../../../lib/atoms';
 import { useFAB } from '../../../components/FAB/FABContext';
 import { Note } from '../../../lib/types';
 
@@ -13,7 +14,9 @@ interface NoteViewClientProps {
 
 export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
   const router = useRouter();
-  const { notes, isLoading, getChildNotes, createNestedNote, getNoteById } = useNotes();
+  const notes = useAtomValue(activeNotesAtom);
+  const getNoteById = useAtomValue(getNoteByIdAtom);
+  const getChildNotes = useAtomValue(getChildNotesAtom);
   const { setCreateNoteHandler } = useFAB();
   const [currentNote, setCurrentNote] = useState<Note | null>(null);
   const [breadcrumbNotes, setBreadcrumbNotes] = useState<Note[]>([]);
@@ -27,7 +30,7 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
   const nestingLevel = notePath.length - 1;
 
   useEffect(() => {
-    if (!isLoading && notePath.length > 0) {
+    if (notePath.length > 0) {
       // Get current note
       const note = getNoteById(currentNoteId);
       setCurrentNote(note || null);
@@ -49,16 +52,12 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
         setChildNotes(children);
       }
     }
-  }, [notePath, notes, isLoading, currentNoteId, getNoteById, getChildNotes]);
+  }, [notePath, notes, currentNoteId, getNoteById, getChildNotes]);
 
-  const handleCreateNestedNote = () => {
-    const timestamp = new Date().toLocaleString();
-    const newNoteId = createNestedNote(currentNoteId, `# New Note\n\nCreated: ${timestamp}\n\nParent: ${currentNote?.title || 'Unknown'}\nNesting Level: ${nestingLevel + 1}\n\n`);
-
-    // Navigate to the new nested note
-    const newPath = [...notePath, newNoteId];
-    router.push(`/note/${newPath.join('/')}`);
-  };
+  const handleCreateNestedNote = useCallback(() => {
+    // Navigate to new note creation page
+    router.push('/note/new');
+  }, [router]);
 
   // Register the create note handler with the global FAB
   useEffect(() => {
@@ -66,7 +65,7 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
 
     // Cleanup: reset to default behavior when leaving this page
     return () => setCreateNoteHandler(undefined);
-  }, [setCreateNoteHandler, currentNoteId, currentNote?.title, nestingLevel, notePath, createNestedNote, router]);
+  }, [setCreateNoteHandler, handleCreateNestedNote]);
 
   const handleEditCurrentNote = () => {
     // Navigate to edit mode using existing edit route
@@ -92,10 +91,10 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
     }
   };
 
-  if (isLoading) {
+  if (!currentNote) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Loading...</div>
+        <div className="text-gray-500">Note not found</div>
       </div>
     );
   }
@@ -135,8 +134,8 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
                   <button
                     onClick={() => handleBreadcrumbClick(index)}
                     className={`transition-colors truncate max-w-32 ${index === breadcrumbNotes.length - 1
-                        ? 'text-gray-900 font-medium'
-                        : 'text-blue-600 hover:text-blue-800'
+                      ? 'text-gray-900 font-medium'
+                      : 'text-blue-600 hover:text-blue-800'
                       }`}
                   >
                     {note.title || `Note ${index + 1}`}
@@ -176,8 +175,8 @@ export const NoteViewClient: React.FC<NoteViewClientProps> = ({ notePath }) => {
 
           <div
             className={`transition-all duration-300 ${isRootLevel
-                ? 'scale-100'
-                : 'scale-95 opacity-90 hover:scale-100 hover:opacity-100'
+              ? 'scale-100'
+              : 'scale-95 opacity-90 hover:scale-100 hover:opacity-100'
               }`}
             style={!isRootLevel ? {
               transformStyle: 'preserve-3d',

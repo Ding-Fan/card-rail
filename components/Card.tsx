@@ -4,9 +4,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useRouter } from 'next/navigation';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Note } from '../lib/types';
 import { useCardHeight, CARD_HEIGHT_RATIOS } from '../lib/cardHeight';
-import { storage } from '../lib/storage';
+import { archiveNoteAtom, deleteNoteAtom, removingCardsAtom } from '../lib/atoms';
 import { CardDrawer } from './CardDrawer';
 
 interface CardProps {
@@ -24,6 +25,14 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
   const cardRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [isAnimated, setIsAnimated] = React.useState(disableEntryAnimation);
+
+  // Jotai state management
+  const removingCards = useAtomValue(removingCardsAtom);
+  const archiveNote = useSetAtom(archiveNoteAtom);
+  const deleteNote = useSetAtom(deleteNoteAtom);
+
+  // Check if this card is being removed for fade animation
+  const isBeingRemoved = removingCards.has(note.id);
 
   // Unified drawer state management
   type DrawerState = 'closed' | 'menu' | 'archive-confirm' | 'delete-confirm';
@@ -77,23 +86,34 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
     setDrawerState('delete-confirm');
   };
 
-  const handleArchiveConfirm = () => {
-    const success = storage.archiveNote(note.id);
-    if (success && onArchived) {
+  const handleArchiveConfirm = async () => {
+    setDrawerState('closed');
+    await archiveNote(note.id);
+    if (onArchived) {
       onArchived();
     }
-    setDrawerState('closed');
   };
 
   const handleArchiveCancel = () => {
     setDrawerState('menu');
   };
 
-  const handleDeleteConfirm = () => {
-    if (onDelete) {
-      onDelete(note.id);
-    }
+  const handleDeleteConfirm = async () => {
     setDrawerState('closed');
+
+    if (isArchiveMode) {
+      // In archive mode, permanently delete the note
+      if (onDelete) {
+        onDelete(note.id);
+      }
+      await deleteNote(note.id);
+    } else {
+      // In normal mode, archive the note
+      await archiveNote(note.id);
+      if (onArchived) {
+        onArchived();
+      }
+    }
   };
 
   const handleDeleteCancel = () => {
@@ -121,9 +141,11 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
       className={`w-full bg-white rounded-lg shadow-lg p-6 flex flex-col relative overflow-hidden
         transition-all duration-600 ease-out
         ${heightClass}
-        ${isAnimated
+        ${isAnimated && !isBeingRemoved
           ? 'opacity-100 scale-100 translate-y-0'
-          : 'opacity-0 scale-95 translate-y-4'
+          : isBeingRemoved
+            ? 'opacity-0 scale-95 translate-y-4 pointer-events-none'
+            : 'opacity-0 scale-95 translate-y-4'
         }`}
     >
       {/* Card Content - Full height with dimming overlay when menu is open */}
@@ -205,6 +227,7 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, showNestedIcon
       <CardDrawer
         drawerState={drawerState}
         isArchiveMode={isArchiveMode}
+        subnoteCount={childCount}
         onEditClick={handleEditClick}
         onArchiveClick={handleArchiveClick}
         onDeleteClick={handleDeleteClick}

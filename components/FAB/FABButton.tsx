@@ -11,6 +11,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { FABButtonProps } from './types';
 import { calculateMenuPosition } from './positionUtils';
 import { FloatingMenu } from './FloatingMenu';
+import { useFAB } from './FABContext';
 
 export const FABButton: React.FC<FABButtonProps> = ({
     position,
@@ -21,6 +22,7 @@ export const FABButton: React.FC<FABButtonProps> = ({
     isMenuOpen,
     setIsMenuOpen
 }) => {
+    const { onCreateSubnote, isInNoteView } = useFAB();
     const [isBlinking, setIsBlinking] = useState(false);
 
     // Cute random blinking animation
@@ -81,10 +83,9 @@ export const FABButton: React.FC<FABButtonProps> = ({
         }
     };
 
-    const handleTouchStart = (e: React.TouchEvent) => {
-        if (e.touches.length === 1) {
-            e.preventDefault();
-        }
+    const handleTouchStart = () => {
+        // Don't prevent default to avoid passive event listener issues
+        // The touch event will be handled by the drag system
     };
 
     // Calculate menu position
@@ -156,7 +157,9 @@ export const FABButton: React.FC<FABButtonProps> = ({
                 isOpen={isMenuOpen}
                 position={menuPosition}
                 onAddNote={handleAddNote}
+                onAddSubnote={onCreateSubnote}
                 onViewArchive={handleViewArchive}
+                isInNoteView={isInNoteView}
             />
         </button>
     );

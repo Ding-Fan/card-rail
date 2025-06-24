@@ -1,12 +1,41 @@
 # Card Rail - Project Status
 
 **Current Version**: 0.1.0  
-**Last Updated**: June 23, 2025  
-**Status**: Archive Feature & UI/UX Improvements Completed
+**Last Updated**: June 24, 2025  
+**Status**: Jotai State Management Refactor Completed
 
 ---
 
-## 🎯 Current Implementation Status
+## 🎯 Recent Major Update: Jotai State Management
+
+### ✅ **Completed Jotai Migration** (June 24, 2025)
+
+#### **State Management Overhaul**
+- **Jotai Integration**: Refactored entire app to use Jotai for reactive state management
+- **Atomic State**: All note operations now use atomic state updates
+- **Automatic Persistence**: `atomWithStorage` provides seamless localStorage integration
+- **Performance Optimization**: Granular re-rendering based on atom usage
+- **Type Safety**: Full TypeScript support with inferred atom types
+
+#### **Enhanced UI/UX with Anime.js**
+- **Unified Drawer**: All card actions use consistent drawer interface with smooth height animations
+- **Anime.js Integration**: Professional-grade animations for drawer transitions
+- **Confirmation Dialogs**: Archive and delete actions with animated confirmation flows
+- **Fade-out Removal**: Cards gracefully fade out when archived or deleted
+- **Real-time Updates**: Card list automatically updates when actions are performed
+
+#### **Comprehensive Testing Suite**
+- **68/68 Tests Passing**: All tests updated for Jotai integration
+- **JotaiProvider Wrapper**: All tests wrapped with state provider for consistency
+- **Fixed Integration Tests**: Resolved module mocking issues and import path problems
+- **Robust Test Coverage**: Card component, state management, and UI interactions
+
+#### **Architecture Improvements**
+- **lib/atoms.ts**: Central state management with all Jotai atoms
+- **lib/JotaiProvider.tsx**: Provider wrapper component for state context
+- **components/CardDrawer.tsx**: Unified drawer UI with anime.js animations
+- **Updated Components**: Card, main page, and archive page refactored for Jotai
+- **Test Infrastructure**: Updated test utils to support new state management
 
 ### ✅ **Completed Features**
 

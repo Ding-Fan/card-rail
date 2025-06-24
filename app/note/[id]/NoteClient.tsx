@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import * as Switch from '@radix-ui/react-switch';
+import { useAtom, useAtomValue, atom } from 'jotai';
 import { Note } from '../../../lib/types';
-import { useNotes } from '../../../lib/useNotes';
+import { updateNoteAtom, getChildNotesAtom, createNoteAtom, canCreateSubnoteAtom } from '../../../lib/atoms';
+import { SubnotesPanel } from '../../../components/SubnotesPanel';
+import { useFAB } from '../../../components/FAB/FABContext';
 
 interface NoteClientProps {
   note: Note;
@@ -15,36 +18,76 @@ interface NoteClientProps {
 
 export default function NoteClient({ note, noteId }: NoteClientProps) {
   const router = useRouter();
-  const { updateNote } = useNotes();
+  const [, updateNote] = useAtom(updateNoteAtom);
+  const [, createNote] = useAtom(createNoteAtom);
+  const canCreateSubnote = useAtomValue(canCreateSubnoteAtom);
+
+  // Create a derived atom for this specific note's subnotes
+  const subnotesSelectorAtom = useMemo(
+    () => atom((get) => get(getChildNotesAtom)(noteId)),
+    [noteId]
+  );
+  const subnotes = useAtomValue(subnotesSelectorAtom);
+
+  const { setCreateSubnoteHandler, setIsInNoteView } = useFAB();
   const [isEditMode, setIsEditMode] = useState(false);
   const [content, setContent] = useState(note.content);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'idle'>('saved');
-  
+  const [isSubnotesPanelVisible, setIsSubnotesPanelVisible] = useState(false);
+
   // Extract title from content (first h1 or first line)
   const getTitle = useCallback((markdown: string) => {
     const lines = markdown.split('\n');
     const firstLine = lines[0]?.trim() || '';
-    
+
     // If first line is H1, extract the text
     if (firstLine.startsWith('# ')) {
       return firstLine.substring(2).trim();
     }
-    
+
     // Otherwise use first non-empty line or fallback
     return firstLine || 'Untitled Note';
   }, []);
 
+  // Handle subnote creation
+  const handleCreateSubnote = useCallback(() => {
+    // Check if subnote creation is allowed
+    if (!canCreateSubnote(noteId)) {
+      alert('Cannot create subnote: Maximum nesting level reached or note is archived.');
+      return;
+    }
+
+    createNote({
+      content: '# New Subnote\n\nStart writing...',
+      parentId: noteId
+    });
+  }, [noteId, canCreateSubnote, createNote]);
+
+  // Set up FAB context for note view
+  useEffect(() => {
+    setIsInNoteView(true);
+    setCreateSubnoteHandler(handleCreateSubnote);
+
+    return () => {
+      setIsInNoteView(false);
+      setCreateSubnoteHandler(undefined);
+    };
+  }, [setIsInNoteView, setCreateSubnoteHandler, handleCreateSubnote]);
+
   // Smart auto-save functionality
   useEffect(() => {
     if (content === note.content) return;
-    
+
     setSaveStatus('saving');
-    
+
     const timeoutId = setTimeout(() => {
-      // Update the note using the hook
-      updateNote(noteId, {
-        content,
-        title: getTitle(content)
+      // Update the note using the Jotai atom
+      updateNote({
+        id: noteId,
+        updates: {
+          content,
+          title: getTitle(content)
+        }
       });
       setSaveStatus('saved');
     }, 2000);
@@ -61,12 +104,15 @@ export default function NoteClient({ note, noteId }: NoteClientProps) {
   const handleBack = () => {
     // Save any pending changes before leaving
     if (content !== note.content) {
-      updateNote(noteId, {
-        content,
-        title: getTitle(content)
+      updateNote({
+        id: noteId,
+        updates: {
+          content,
+          title: getTitle(content)
+        }
       });
     }
-    
+
     router.back();
   };
 
@@ -98,6 +144,19 @@ export default function NoteClient({ note, noteId }: NoteClientProps) {
           </button>
 
           <div className="flex items-center gap-2">
+            {/* Subnotes count and toggle */}
+            {subnotes.length > 0 && (
+              <button
+                onClick={() => setIsSubnotesPanelVisible(!isSubnotesPanelVisible)}
+                className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                {subnotes.length} subnote{subnotes.length !== 1 ? 's' : ''}
+              </button>
+            )}
+
             {/* Compact Save Status */}
             {saveStatus !== 'idle' && (
               <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -167,7 +226,7 @@ export default function NoteClient({ note, noteId }: NoteClientProps) {
                 <time>Updated {new Date(note.updated_at).toLocaleDateString()}</time>
               </div>
             </header>
-            
+
             {/* Full Content Display - No Height Restrictions */}
             <div className="prose prose-lg max-w-none prose-gray">
               <ReactMarkdown
@@ -226,6 +285,15 @@ export default function NoteClient({ note, noteId }: NoteClientProps) {
           </article>
         )}
       </div>
+
+      {/* Subnotes Panel */}
+      {subnotes.length > 0 && (
+        <SubnotesPanel
+          parentNoteId={noteId}
+          isVisible={isSubnotesPanelVisible}
+          onVisibilityChange={setIsSubnotesPanelVisible}
+        />
+      )}
     </div>
   );
 }

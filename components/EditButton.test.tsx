@@ -41,7 +41,7 @@ describe('Card Component - Edit Button', () => {
     fireEvent.click(menuButton)
 
     // Check menu button styling
-    expect(menuButton).toHaveClass('bg-gray-100/80', 'text-gray-600', 'rounded-full')
+    expect(menuButton).toHaveClass('bg-gray-100', 'text-gray-600', 'rounded-full')
     expect(menuButton).toHaveClass('w-8', 'h-8')
 
     // Should have edit option in menu

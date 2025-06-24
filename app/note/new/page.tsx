@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import * as Switch from '@radix-ui/react-switch';
-import { useNotes } from '../../../lib/useNotes';
+import { useAtom } from 'jotai';
+import { createNoteAtom, updateNoteAtom } from '../../../lib/atoms';
 
 // Client component that shows empty editor and creates note on first keystroke
 export default function NewNotePage() {
   const router = useRouter();
-  const { createNote, updateNote } = useNotes();
+  const [, createNote] = useAtom(createNoteAtom);
+  const [, updateNote] = useAtom(updateNoteAtom);
   const [isEditMode, setIsEditMode] = useState(true); // Start in edit mode
   const [content, setContent] = useState(''); // Start with empty content
   const [noteId, setNoteId] = useState<string | null>(null); // Track created note ID
@@ -20,12 +22,12 @@ export default function NewNotePage() {
   const getTitle = useCallback((markdown: string) => {
     const lines = markdown.split('\n');
     const firstLine = lines[0]?.trim() || '';
-    
+
     // If first line is H1, extract the text
     if (firstLine.startsWith('# ')) {
       return firstLine.substring(2).trim();
     }
-    
+
     // Otherwise use first non-empty line or fallback
     return firstLine || 'Untitled Note';
   }, []);
@@ -33,13 +35,16 @@ export default function NewNotePage() {
   // Debounced auto-save for subsequent changes after note is created
   useEffect(() => {
     if (!noteId || content === '') return; // Only save if note exists and has content
-    
+
     setSaveStatus('saving');
-    
+
     const timeoutId = setTimeout(() => {
-      updateNote(noteId, {
-        content,
-        title: getTitle(content)
+      updateNote({
+        id: noteId,
+        updates: {
+          content,
+          title: getTitle(content)
+        }
       });
       setSaveStatus('saved');
     }, 2000);
@@ -57,16 +62,19 @@ export default function NewNotePage() {
       const now = new Date();
       const timestamp = now.toLocaleString(); // e.g., "6/19/2025, 10:30:00 AM"
       const headerContent = `# ${timestamp}\n\n${newContent}`;
-      
+
       const createdNoteId = createNote();
       if (createdNoteId) {
         setNoteId(createdNoteId);
         setContent(headerContent);
-        
+
         // Update the note with the header + user content
-        updateNote(createdNoteId, {
-          content: headerContent,
-          title: timestamp
+        updateNote({
+          id: createdNoteId,
+          updates: {
+            content: headerContent,
+            title: timestamp
+          }
         });
       }
     }
@@ -174,7 +182,7 @@ export default function NewNotePage() {
                     {getTitle(content)}
                   </h1>
                 </header>
-                
+
                 {/* Full Content Display */}
                 <div className="prose prose-lg max-w-none prose-gray">
                   <ReactMarkdown
