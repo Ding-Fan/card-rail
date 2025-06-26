@@ -19,13 +19,21 @@ export default function Home() {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Debug logging
+  console.log('Home component render:', {
+    isLoading,
+    topLevelNotesCount: topLevelNotes.length,
+    topLevelNotes: topLevelNotes.map((n) => ({ id: n.id, title: n.title }))
+  });
+
   // Touch/swipe state
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
 
   // Initialize notes when component mounts
   useEffect(() => {
-    initializeNotes();
+    console.log('🚀 Component mounted, calling initializeNotes...');
+    initializeNotes().catch(console.error);
   }, [initializeNotes]);
 
   // Refresh notes when component becomes visible
@@ -108,16 +116,18 @@ export default function Home() {
           </div>
         ) : (
           // Notes list
-          topLevelNotes.map((note) => (
-            <div key={note.id} className="p-4 flex-shrink-0">
-              <Card
-                note={note}
-                childCount={getChildNotes(note.id).length}
-                showNestedIcon={true}
-                onArchived={() => { }}
-              />
-            </div>
-          ))
+          <div>
+            {topLevelNotes.map((note) => (
+              <div key={note.id} className="p-4 flex-shrink-0">
+                <Card
+                  note={note}
+                  childCount={getChildNotes(note.id).length}
+                  showNestedIcon={true}
+                  onArchived={() => { }}
+                />
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

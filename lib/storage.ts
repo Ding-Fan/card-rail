@@ -19,7 +19,6 @@ export interface StorageUtils {
   getActiveNotes: () => Note[]
   getFabPosition: () => { x: number; y: number } | null
   setFabPosition: (position: { x: number; y: number }) => boolean
-  clearAll: () => void
 }
 
 // Safe localStorage operations with error handling
@@ -149,11 +148,7 @@ class SafeStorage implements StorageUtils {
     if (!data) return null
     
     try {
-      const position = JSON.parse(data)
-      if (typeof position.x === 'number' && typeof position.y === 'number') {
-        return position
-      }
-      return null
+      return JSON.parse(data)
     } catch (error) {
       console.warn('Failed to parse FAB position from localStorage', error)
       return null
@@ -169,16 +164,6 @@ class SafeStorage implements StorageUtils {
       return false
     }
   }
-
-  clearAll(): void {
-    Object.values(STORAGE_KEYS).forEach(key => {
-      this.safeRemoveItem(key)
-    })
-  }
 }
 
-// Export singleton instance
-export const storage = new SafeStorage()
-
-// Export class for testing
-export { SafeStorage }
+export const storage: StorageUtils = new SafeStorage()

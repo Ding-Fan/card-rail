@@ -7,7 +7,16 @@ import { storage } from './storage';
 import { getAllMockNotes } from '../data/mockNotes';
 
 // Base atoms for storing notes data
-export const notesMapAtom = atomWithStorage<Record<string, Note>>('card-rail-notes', {});
+// Initialize with mock notes as default value
+const getInitialNotes = (): Record<string, Note> => {
+  const mockNotes = getAllMockNotes();
+  return mockNotes.reduce((acc, note) => {
+    acc[note.id] = note;
+    return acc;
+  }, {} as Record<string, Note>);
+};
+
+export const notesMapAtom = atomWithStorage<Record<string, Note>>('card-rail-notes', getInitialNotes());
 
 // Derived atoms for different note views
 export const activeNotesAtom = atom((get) => {
@@ -27,6 +36,66 @@ export const topLevelNotesAtom = atom((get) => {
 
 // Atom for tracking cards being removed (for fade animation)
 export const removingCardsAtom = atom<Set<string>>(new Set<string>());
+
+// Atom for tracking flipped cards state (persistent)
+// Use custom serialization for Set storage
+export const flippedCardsAtom = atomWithStorage<Set<string>>(
+  'card-rail-flipped', 
+  new Set<string>(),
+  {
+    getItem: (key, initialValue) => {
+      try {
+        const stored = localStorage.getItem(key);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          return new Set(Array.isArray(parsed) ? parsed : []);
+        }
+      } catch (error) {
+        console.warn('Failed to parse flipped cards from storage:', error);
+      }
+      return initialValue;
+    },
+    setItem: (key, newValue) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(Array.from(newValue)));
+      } catch (error) {
+        console.warn('Failed to save flipped cards to storage:', error);
+      }
+    },
+    removeItem: (key) => {
+      try {
+        localStorage.removeItem(key);
+      } catch (error) {
+        console.warn('Failed to remove flipped cards from storage:', error);
+      }
+    },
+  }
+);
+
+// Action atom to flip a card
+export const flipCardAtom = atom(
+  null,
+  (get, set, noteId: string) => {
+    const flippedCards = get(flippedCardsAtom);
+    const newFlippedCards = new Set(flippedCards);
+    
+    if (newFlippedCards.has(noteId)) {
+      newFlippedCards.delete(noteId);
+    } else {
+      newFlippedCards.add(noteId);
+    }
+    
+    set(flippedCardsAtom, newFlippedCards);
+  }
+);
+
+// Action atom to flip all cards to front
+export const flipAllCardsToFrontAtom = atom(
+  null,
+  (get, set) => {
+    set(flippedCardsAtom, new Set<string>());
+  }
+);
 
 // Atom for loading state
 export const notesLoadingAtom = atom(false);
@@ -84,132 +153,65 @@ export const canCreateSubnoteAtom = atom((get) => (noteId: string) => {
 });
 
 // Action atoms for note operations
+// Simplified initialization - atomWithStorage handles the rest
 export const initializeNotesAtom = atom(null, async (get, set) => {
+  console.log('🔄 Initializing notes...');
   set(notesLoadingAtom, true);
   
-  try {
-    const savedNotes = storage.getNotes();
-    if (savedNotes && Object.keys(savedNotes).length > 0) {
-      set(notesMapAtom, savedNotes);
-    } else {
-      // First time load - use mock notes
-      const mockNotes = getAllMockNotes();
-      const notesObject = mockNotes.reduce((acc, note) => {
-        acc[note.id] = note;
-        return acc;
-      }, {} as Record<string, Note>);
-      
-      storage.setNotes(notesObject);
-      set(notesMapAtom, notesObject);
-    }
-  } catch (error) {
-    console.error('Failed to initialize notes:', error);
-    // Fallback to mock notes
-    const mockNotes = getAllMockNotes();
-    const notesObject = mockNotes.reduce((acc, note) => {
-      acc[note.id] = note;
-      return acc;
-    }, {} as Record<string, Note>);
-    
-    storage.setNotes(notesObject);
-    set(notesMapAtom, notesObject);
-  } finally {
-    set(notesLoadingAtom, false);
-  }
+  // atomWithStorage will automatically load from localStorage or use default value
+  // We just need to trigger any initialization logic here if needed
+  const currentNotes = get(notesMapAtom);
+  console.log('✅ Notes loaded via atomWithStorage:', Object.keys(currentNotes).length, 'notes');
+  
+  set(notesLoadingAtom, false);
 });
 
-export const createNoteAtom = atom(null, (_get, set, params?: { parentId?: string; content?: string }) => {
-  const now = new Date();
-  const newNote: Note = {
-    id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    title: 'New Note',
-    content: params?.content || '',
-    created_at: now.toISOString(),
-    updated_at: now.toISOString(),
-    parent_id: params?.parentId,
-  };
-
-  set(notesMapAtom, (prev) => {
-    const updated = { ...prev, [newNote.id]: newNote };
-    storage.setNotes(updated);
-    return updated;
-  });
-
-  return newNote.id;
-});
-
-// Specific atom for creating subnotes with content template
-export const createSubnoteAtom = atom(null, (get, set, parentId: string) => {
-  const canCreateSubnote = get(canCreateSubnoteAtom);
-  if (!canCreateSubnote(parentId)) {
-    throw new Error('Cannot create subnote: parent is archived or nesting limit reached');
-  }
-  
-  const getNoteById = get(getNoteByIdAtom);
-  const getNestingLevel = get(getNestingLevelAtom);
-  const parentNote = getNoteById(parentId);
-  const { level } = getNestingLevel(parentId);
-  
-  const timestamp = new Date().toLocaleString();
-  const content = `# New Subnote
-
-Created: ${timestamp}
-Parent: ${parentNote?.title || 'Unknown'}
-Level: ${level + 1}
-
-`;
-
-  // Create the subnote directly
-  const now = new Date();
-  const newNote: Note = {
-    id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    title: 'New Subnote',
-    content,
-    created_at: now.toISOString(),
-    updated_at: now.toISOString(),
-    parent_id: parentId,
-  };
-
-  set(notesMapAtom, (prev) => {
-    const updated = { ...prev, [newNote.id]: newNote };
-    storage.setNotes(updated);
-    return updated;
-  });
-
-  return newNote.id;
-});
-
-// Helper atom to get all descendant note IDs (recursive)
-export const getDescendantIdsAtom = atom((get) => (noteId: string): string[] => {
-  const getChildNotes = get(getChildNotesAtom);
-  
-  const getDescendants = (id: string): string[] => {
-    const children = getChildNotes(id);
-    const childIds = children.map(child => child.id);
-    const grandchildren = children.flatMap(child => getDescendants(child.id));
-    return [...childIds, ...grandchildren];
-  };
-  
-  return getDescendants(noteId);
-});
-
-export const updateNoteAtom = atom(null, (_get, set, params: { id: string; updates: Partial<Note> }) => {
-  const { id, updates } = params;
-  
-  set(notesMapAtom, (prev) => {
-    if (!prev[id]) return prev;
-    
-    const updatedNote = {
-      ...prev[id],
-      ...updates,
-      updated_at: new Date().toISOString(),
+export const createNoteAtom = atom(
+  null, 
+  (get, set, params?: { parentId?: string; content?: string }) => {
+    const now = new Date();
+    const newNote: Note = {
+      id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      title: 'New Note',
+      content: params?.content || '',
+      created_at: now.toISOString(),
+      updated_at: now.toISOString(),
+      parent_id: params?.parentId,
+      isArchived: false,
     };
+
+    // Update the notes map
+    const currentNotes = get(notesMapAtom);
+    const newNotes = {
+      ...currentNotes,
+      [newNote.id]: newNote,
+    };
+    set(notesMapAtom, newNotes);
     
-    const updated = { ...prev, [id]: updatedNote };
-    storage.setNotes(updated);
-    return updated;
-  });
-});
+    // The atomWithStorage should handle persistence automatically
+    
+    return newNote;
+  }
+);
+
+export const updateNoteAtom = atom(
+  null,
+  (_get, set, params: { id: string; updates: Partial<Note> }) => {
+    const { id, updates } = params;
+    
+    set(notesMapAtom, (prev) => {
+      if (!prev[id]) return prev;
+      
+      const updatedNote = {
+        ...prev[id],
+        ...updates,
+        updated_at: new Date().toISOString(),
+      };
+      
+      return { ...prev, [id]: updatedNote };
+    });
+  }
+);
 
 export const archiveNoteAtom = atom(null, async (get, set, noteId: string) => {
   // Add to removing cards for fade animation
@@ -231,22 +233,7 @@ export const archiveNoteAtom = atom(null, async (get, set, noteId: string) => {
       updated_at: new Date().toISOString(),
     };
     
-    const updated = { ...prev, [noteId]: archivedNote };
-    
-    // Try to save to storage
-    try {
-      storage.setNotes(updated);
-      return updated;
-    } catch (error) {
-      console.error('Failed to archive note:', error);
-      // On error, keep the original state and remove from removing cards
-      set(removingCardsAtom, (prev: Set<string>) => {
-        const newSet = new Set(prev);
-        newSet.delete(noteId);
-        return newSet;
-      });
-      return prev;
-    }
+    return { ...prev, [noteId]: archivedNote };
   });
   
   // Remove from removing cards after successful archive
@@ -270,21 +257,8 @@ export const deleteNoteAtom = atom(null, async (get, set, noteId: string) => {
     
     const updated = { ...prev };
     delete updated[noteId];
+    return updated;
     
-    // Try to save to storage
-    try {
-      storage.setNotes(updated);
-      return updated;
-    } catch (error) {
-      console.error('Failed to delete note:', error);
-      // On error, keep the original state and remove from removing cards
-      set(removingCardsAtom, (prev: Set<string>) => {
-        const newSet = new Set(prev);
-        newSet.delete(noteId);
-        return newSet;
-      });
-      return prev;
-    }
   });
   
   // Remove from removing cards after successful deletion
@@ -337,20 +311,7 @@ export const deleteNoteWithChildrenAtom = atom(null, async (get, set, noteId: st
   set(notesMapAtom, (prev) => {
     const updated = { ...prev };
     toDelete.forEach(id => delete updated[id]);
-    
-    try {
-      storage.setNotes(updated);
-      return updated;
-    } catch (error) {
-      console.error('Failed to delete notes:', error);
-      // On error, remove from removing cards
-      set(removingCardsAtom, (prev: Set<string>) => {
-        const newSet = new Set(prev);
-        toDelete.forEach(id => newSet.delete(id));
-        return newSet;
-      });
-      return prev;
-    }
+    return updated;
   });
   
   // Remove from removing cards after successful deletion

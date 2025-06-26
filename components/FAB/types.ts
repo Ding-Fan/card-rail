@@ -31,6 +31,7 @@ export interface FABButtonProps {
   position: Position;
   onCreateNote: () => void;
   onViewArchive: () => void;
+  onFlipAllToFront?: () => void;
   isDragging: boolean;
   onDoubleClick?: () => void;
   isMenuOpen: boolean;
@@ -43,5 +44,6 @@ export interface FloatingMenuProps {
   onAddNote: () => void;
   onAddSubnote?: () => void;
   onViewArchive: () => void;
+  onFlipAllToFront?: () => void;
   isInNoteView?: boolean;
 }

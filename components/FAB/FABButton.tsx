@@ -17,6 +17,7 @@ export const FABButton: React.FC<FABButtonProps> = ({
     position,
     onCreateNote,
     onViewArchive,
+    onFlipAllToFront,
     isDragging,
     onDoubleClick,
     isMenuOpen,
@@ -102,6 +103,13 @@ export const FABButton: React.FC<FABButtonProps> = ({
         onViewArchive();
     };
 
+    const handleFlipAllToFront = () => {
+        setIsMenuOpen(false);
+        if (onFlipAllToFront) {
+            onFlipAllToFront();
+        }
+    };
+
     // Tap handler that toggles menu (iOS-style)
     const handleTap = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -159,6 +167,7 @@ export const FABButton: React.FC<FABButtonProps> = ({
                 onAddNote={handleAddNote}
                 onAddSubnote={onCreateSubnote}
                 onViewArchive={handleViewArchive}
+                onFlipAllToFront={handleFlipAllToFront}
                 isInNoteView={isInNoteView}
             />
         </button>

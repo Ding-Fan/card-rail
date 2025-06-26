@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSetAtom } from 'jotai';
 import {
   DndContext,
   DragEndEvent,
@@ -12,6 +13,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { storage } from '../../lib/storage';
+import { flipAllCardsToFrontAtom } from '../../lib/atoms';
 
 // Import modular components
 import { DraggableFABProps, Position } from './types';
@@ -29,6 +31,9 @@ export const DraggableFAB: React.FC<DraggableFABProps> = ({ onCreateNote }) => {
   const router = useRouter();
   const [isDragging, setIsDragging] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Jotai actions
+  const flipAllCardsToFront = useSetAtom(flipAllCardsToFrontAtom);
 
   // Configure drag sensors for better touch and mouse support
   const sensors = useSensors(
@@ -101,6 +106,10 @@ export const DraggableFAB: React.FC<DraggableFABProps> = ({ onCreateNote }) => {
 
   const handleViewArchive = () => {
     router.push('/archive');
+  };
+
+  const handleFlipAllToFront = () => {
+    flipAllCardsToFront();
   };
 
   // Temporary debug function for mobile testing
@@ -178,6 +187,7 @@ export const DraggableFAB: React.FC<DraggableFABProps> = ({ onCreateNote }) => {
           position={position}
           onCreateNote={handleCreateNote}
           onViewArchive={handleViewArchive}
+          onFlipAllToFront={handleFlipAllToFront}
           isDragging={isDragging}
           onDoubleClick={handleDoubleClick}
           isMenuOpen={isMenuOpen}

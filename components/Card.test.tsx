@@ -51,7 +51,9 @@ describe('Card Component', () => {
     const card = screen.getByTestId('note-card')
     expect(card).toHaveClass('rounded-lg')
     expect(card).toHaveClass('shadow-lg')
-    expect(card).toHaveClass('bg-white')
+    // The bg-white class is now on the card front
+    const cardFront = screen.getByTestId('card-front')
+    expect(cardFront).toHaveClass('bg-white')
   })
 
   it('should not be clickable and should not trigger any navigation', () => {
@@ -108,8 +110,8 @@ describe('Card Component', () => {
     // Verify menu is initially closed
     expect(drawerMenu).toHaveAttribute('data-menu-open', 'false')
     expect(drawerMenu).toHaveClass('translate-y-full')
-    expect(screen.queryByText('Edit Note')).not.toBeInTheDocument()
-    expect(screen.queryByText('Archive Note')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('enter-note-button')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('archive-button')).not.toBeInTheDocument()
 
     // Click menu button to open menu
     fireEvent.click(menuButton)
@@ -117,8 +119,8 @@ describe('Card Component', () => {
     // Verify menu is now open
     expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
     expect(drawerMenu).toHaveClass('translate-y-0')
-    expect(screen.getByText('Edit Note')).toBeInTheDocument()
-    expect(screen.getByText('Archive Note')).toBeInTheDocument()
+    expect(screen.getByTestId('enter-note-button')).toBeInTheDocument()
+    expect(screen.getByTestId('archive-button')).toBeInTheDocument()
   })
 
   it('should have proper 3-dot menu button styling', () => {
@@ -129,16 +131,16 @@ describe('Card Component', () => {
     expect(menuButton).toHaveClass('w-8', 'h-8')
   })
 
-  it('should navigate to edit page when edit menu item is clicked', () => {
+  it('should navigate to note detail page when enter note menu item is clicked', () => {
     render(<Card note={mockNotes.simple} />)
 
     const menuButton = screen.getByTestId('card-menu-button')
     fireEvent.click(menuButton)
 
-    const editMenuItem = screen.getByText('Edit Note')
-    fireEvent.click(editMenuItem)
+    const enterNoteMenuItem = screen.getByTestId('enter-note-button')
+    fireEvent.click(enterNoteMenuItem)
 
-    expect(mockPush).toHaveBeenCalledWith('/note/1?edit=true')
+    expect(mockPush).toHaveBeenCalledWith('/note/1')
   })
 
   it('should stop event propagation on menu interactions and close menu on menu item click', () => {
@@ -153,10 +155,10 @@ describe('Card Component', () => {
     expect(mockPush).not.toHaveBeenCalled()
     expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
 
-    const editMenuItem = screen.getByText('Edit Note')
-    fireEvent.click(editMenuItem)
+    const enterNoteMenuItem = screen.getByTestId('enter-note-button')
+    fireEvent.click(enterNoteMenuItem)
 
-    expect(mockPush).toHaveBeenCalledWith('/note/1?edit=true')
+    expect(mockPush).toHaveBeenCalledWith('/note/1')
     // Menu should close after clicking a menu item
     expect(drawerMenu).toHaveAttribute('data-menu-open', 'false')
   })
@@ -263,10 +265,10 @@ describe('Card Component', () => {
       const menuButton = screen.getByTestId('card-menu-button')
       fireEvent.click(menuButton)
 
-      // Should show Edit Note and Delete Note (not Archive Note)
-      expect(screen.getByText('Edit Note')).toBeInTheDocument()
-      expect(screen.getByText('Delete Note')).toBeInTheDocument()
-      expect(screen.queryByText('Archive Note')).not.toBeInTheDocument()
+      // Should show Enter Note and Delete Note (not Archive Note) in the front drawer
+      expect(screen.getByTestId('enter-note-button')).toBeInTheDocument()
+      expect(screen.getByTestId('delete-button')).toBeInTheDocument()
+      expect(screen.queryByTestId('archive-button')).not.toBeInTheDocument()
     })
 
     it('should show "Archive Note" when not in archive mode (default)', () => {
@@ -275,10 +277,10 @@ describe('Card Component', () => {
       const menuButton = screen.getByTestId('card-menu-button')
       fireEvent.click(menuButton)
 
-      // Should show Edit Note and Archive Note (not Delete Note)
-      expect(screen.getByText('Edit Note')).toBeInTheDocument()
-      expect(screen.getByText('Archive Note')).toBeInTheDocument()
-      expect(screen.queryByText('Delete Note')).not.toBeInTheDocument()
+      // Should show Enter Note and Archive Note (not Delete Note) in the front drawer
+      expect(screen.getByTestId('enter-note-button')).toBeInTheDocument()
+      expect(screen.getByTestId('archive-button')).toBeInTheDocument()
+      expect(screen.queryByTestId('delete-button')).not.toBeInTheDocument()
     })
 
     it('should show delete confirmation in drawer when "Delete Note" is clicked', () => {
@@ -288,18 +290,25 @@ describe('Card Component', () => {
       const drawerMenu = screen.getByTestId('card-drawer-menu')
       fireEvent.click(menuButton)
 
-      const deleteMenuItem = screen.getByTestId('delete-note-button')
+      const deleteMenuItem = screen.getByTestId('delete-button')
       fireEvent.click(deleteMenuItem)
 
       // Drawer should still be open but showing confirmation content
       expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
-      expect(screen.getByText('Delete Note')).toBeInTheDocument() // Header
+
+      // Check for the confirmation header specifically in the drawer
+      const confirmationHeadings = screen.getAllByText('Delete Note')
+      const drawerHeading = confirmationHeadings.find(heading =>
+        heading.tagName === 'H3' && heading.closest('[data-testid="card-drawer-menu"]')
+      )
+      expect(drawerHeading).toBeInTheDocument()
+
       expect(screen.getByText('Are you sure you want to permanently delete this note? This action cannot be undone.')).toBeInTheDocument()
-      expect(screen.getByText('Cancel')).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument()
+      expect(screen.getByTestId('delete-cancel-button')).toBeInTheDocument()
+      expect(screen.getByTestId('delete-confirm-button')).toBeInTheDocument()
 
       // Menu items should no longer be visible
-      expect(screen.queryByText('Edit Note')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('enter-note-button')).not.toBeInTheDocument()
     })
 
     it('should return to menu when "Cancel" is clicked in confirmation', () => {
@@ -309,16 +318,16 @@ describe('Card Component', () => {
       const drawerMenu = screen.getByTestId('card-drawer-menu')
       fireEvent.click(menuButton)
 
-      const deleteMenuItem = screen.getByTestId('delete-note-button')
+      const deleteMenuItem = screen.getByTestId('delete-button')
       fireEvent.click(deleteMenuItem)
 
-      const cancelButton = screen.getByText('Cancel')
+      const cancelButton = screen.getByTestId('delete-cancel-button')
       fireEvent.click(cancelButton)
 
       // Should return to menu state
       expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
-      expect(screen.getByText('Edit Note')).toBeInTheDocument()
-      expect(screen.getByText('Delete Note')).toBeInTheDocument()
+      expect(screen.getByTestId('enter-note-button')).toBeInTheDocument()
+      expect(screen.getByTestId('delete-button')).toBeInTheDocument()
       expect(screen.queryByText('Are you sure you want to permanently delete this note?')).not.toBeInTheDocument()
     })
 
@@ -329,18 +338,25 @@ describe('Card Component', () => {
       const drawerMenu = screen.getByTestId('card-drawer-menu')
       fireEvent.click(menuButton)
 
-      const archiveMenuItem = screen.getByTestId('archive-note-button')
+      const archiveMenuItem = screen.getByTestId('archive-button')
       fireEvent.click(archiveMenuItem)
 
       // Drawer should still be open but showing confirmation content
       expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
-      expect(screen.getByText('Archive Note')).toBeInTheDocument() // Header
+
+      // Check for the confirmation header specifically in the drawer
+      const confirmationHeadings = screen.getAllByText('Archive Note')
+      const drawerHeading = confirmationHeadings.find(heading =>
+        heading.tagName === 'H3' && heading.closest('[data-testid="card-drawer-menu"]')
+      )
+      expect(drawerHeading).toBeInTheDocument()
+
       expect(screen.getByText('Are you sure you want to archive this note?')).toBeInTheDocument()
-      expect(screen.getByText('Cancel')).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Archive' })).toBeInTheDocument()
+      expect(screen.getByTestId('archive-cancel-button')).toBeInTheDocument()
+      expect(screen.getByTestId('archive-confirm-button')).toBeInTheDocument()
 
       // Menu items should no longer be visible
-      expect(screen.queryByText('Edit Note')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('enter-note-button')).not.toBeInTheDocument()
     })
 
     it('should call onDelete callback when "Delete" is confirmed', () => {
@@ -350,10 +366,10 @@ describe('Card Component', () => {
       const menuButton = screen.getByTestId('card-menu-button')
       fireEvent.click(menuButton)
 
-      const deleteMenuItem = screen.getByTestId('delete-note-button')
+      const deleteMenuItem = screen.getByTestId('delete-button')
       fireEvent.click(deleteMenuItem)
 
-      const confirmDeleteButton = screen.getByRole('button', { name: 'Delete' })
+      const confirmDeleteButton = screen.getByTestId('delete-confirm-button')
       fireEvent.click(confirmDeleteButton)
 
       // Should call onDelete with note id
@@ -370,10 +386,10 @@ describe('Card Component', () => {
       fireEvent.click(menuButton)
       expect(drawerMenu).toHaveAttribute('data-menu-open', 'true')
 
-      const deleteMenuItem = screen.getByTestId('delete-note-button')
+      const deleteMenuItem = screen.getByTestId('delete-button')
       fireEvent.click(deleteMenuItem)
 
-      const confirmDeleteButton = screen.getByRole('button', { name: 'Delete' })
+      const confirmDeleteButton = screen.getByTestId('delete-confirm-button')
       fireEvent.click(confirmDeleteButton)
 
       // Menu should be closed and confirmation dialog should be gone
