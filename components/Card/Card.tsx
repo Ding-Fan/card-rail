@@ -6,8 +6,8 @@ import remarkGfm from 'remark-gfm';
 import { useRouter } from 'next/navigation';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { animate } from 'animejs';
-import { Note } from '../lib/types';
-import { archiveNoteAtom, deleteNoteAtom, removingCardsAtom, flippedCardsAtom, flipCardAtom } from '../lib/atoms';
+import { Note } from '../../lib/types';
+import { archiveNoteAtom, deleteNoteAtom, removingCardsAtom, flippedCardsAtom, flipCardAtom } from '../../lib/atoms';
 import { CardDrawer } from './CardDrawer';
 import { CardBackPanel } from './CardBackPanel';
 

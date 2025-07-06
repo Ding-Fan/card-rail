@@ -11,7 +11,7 @@ import {
     deleteNoteAtom
 } from '../../lib/atoms';
 import { Note } from '../../lib/types';
-import { Card } from '../../components/Card';
+import { Card } from '../../components/Card/Card';
 
 export default function ArchivePage() {
     const router = useRouter();

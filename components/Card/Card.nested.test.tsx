@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Card } from '../components/Card';
-import { createMockNote } from '../test/mocks';
+import { Card } from '../Card';
+import { createMockNote } from '../../test/mocks';
 
 // Mock Next.js router - must be done at module level
 const mockPush = vi.fn()
@@ -37,8 +37,8 @@ describe('Card with Nested Notes', () => {
 
   it('renders nested notes button when showNestedIcon is true', () => {
     render(
-      <Card 
-        note={mockNote} 
+      <Card
+        note={mockNote}
         childCount={3}
         showNestedIcon={true}
       />
@@ -51,8 +51,8 @@ describe('Card with Nested Notes', () => {
 
   it('does not render nested notes button when showNestedIcon is false', () => {
     render(
-      <Card 
-        note={mockNote} 
+      <Card
+        note={mockNote}
         childCount={0}
         showNestedIcon={false}
       />
@@ -64,8 +64,8 @@ describe('Card with Nested Notes', () => {
 
   it('shows child count badge when there are child notes', () => {
     render(
-      <Card 
-        note={mockNote} 
+      <Card
+        note={mockNote}
         childCount={5}
         showNestedIcon={true}
       />
@@ -77,8 +77,8 @@ describe('Card with Nested Notes', () => {
 
   it('shows 9+ badge when there are more than 9 child notes', () => {
     render(
-      <Card 
-        note={mockNote} 
+      <Card
+        note={mockNote}
         childCount={15}
         showNestedIcon={true}
       />
@@ -90,8 +90,8 @@ describe('Card with Nested Notes', () => {
 
   it('navigates to nested notes page when nested button is clicked', () => {
     render(
-      <Card 
-        note={mockNote} 
+      <Card
+        note={mockNote}
         childCount={2}
         showNestedIcon={true}
       />
@@ -105,8 +105,8 @@ describe('Card with Nested Notes', () => {
 
   it('does not trigger card tap when nested button is clicked', () => {
     render(
-      <Card 
-        note={mockNote} 
+      <Card
+        note={mockNote}
         childCount={1}
         showNestedIcon={true}
       />

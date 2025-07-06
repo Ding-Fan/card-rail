@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from '../../../components/Card';
+import { Card } from '../../../components/Card/Card';
 import { useAtomValue } from 'jotai';
 import { activeNotesAtom, getNoteByIdAtom, getChildNotesAtom } from '../../../lib/atoms';
 import { useFAB } from '../../../components/FAB/FABContext';

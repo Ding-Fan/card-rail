@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { useAtomValue, atom } from 'jotai';
-import { getChildNotesAtom } from '../lib/atoms';
+import { getChildNotesAtom } from '../../lib/atoms';
 
 interface CardBackPanelProps {
     parentNoteId: string;

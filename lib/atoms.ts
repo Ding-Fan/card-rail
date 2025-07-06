@@ -31,7 +31,9 @@ export const archivedNotesAtom = atom((get) => {
 
 export const topLevelNotesAtom = atom((get) => {
   const activeNotes = get(activeNotesAtom);
-  return activeNotes.filter(note => !note.parent_id);
+  return activeNotes
+    .filter(note => !note.parent_id)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()); // Newest first
 });
 
 // Atom for tracking cards being removed (for fade animation)
@@ -103,7 +105,9 @@ export const notesLoadingAtom = atom(false);
 // Helper atom to get child notes for a parent
 export const getChildNotesAtom = atom((get) => (parentId: string) => {
   const activeNotes = get(activeNotesAtom);
-  return activeNotes.filter(note => note.parent_id === parentId);
+  return activeNotes
+    .filter(note => note.parent_id === parentId)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()); // Newest first
 });
 
 // Helper atom to get a note by ID

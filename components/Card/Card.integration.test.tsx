@@ -3,10 +3,10 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useRouter } from 'next/navigation';
 import { Card } from './Card';
-import { JotaiProvider } from '../lib/JotaiProvider';
-import { storage } from '../lib/storage';
-import { Note } from '../lib/types';
-import { mockAnimejs } from '../test/mocks';
+import { JotaiProvider } from '../../lib/JotaiProvider';
+import { storage } from '../../lib/storage';
+import { Note } from '../../lib/types';
+import { mockAnimejs } from '../../test/mocks';
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
@@ -14,7 +14,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 // Mock storage
-vi.mock('../lib/storage', () => ({
+vi.mock('../../lib/storage', () => ({
     storage: {
         getNotes: vi.fn(),
         setNotes: vi.fn(),
@@ -162,7 +162,7 @@ describe('Card Integration Tests', () => {
 
             // Should see menu options
             await waitFor(() => {
-                expect(screen.getByTestId('edit-button')).toBeInTheDocument();
+                expect(screen.getByTestId('enter-note-button')).toBeInTheDocument();
                 expect(screen.getByTestId('archive-button')).toBeInTheDocument();
             });
         });

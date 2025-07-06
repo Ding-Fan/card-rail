@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '../test/utils'
+import { render, screen, fireEvent } from '../../test/utils'
 import { Card } from './Card'
-import { mockAnimejs, mockNotes } from '../test/mocks'
+import { mockAnimejs, mockNotes } from '../../test/mocks'
 
 // Mock Next.js router - must be done at module level
 const mockPush = vi.fn()

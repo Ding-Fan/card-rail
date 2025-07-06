@@ -63,14 +63,14 @@ export default function NewNotePage() {
       const timestamp = now.toLocaleString(); // e.g., "6/19/2025, 10:30:00 AM"
       const headerContent = `# ${timestamp}\n\n${newContent}`;
 
-      const createdNoteId = createNote();
-      if (createdNoteId) {
-        setNoteId(createdNoteId);
+      const createdNote = createNote();
+      if (createdNote) {
+        setNoteId(createdNote.id);
         setContent(headerContent);
 
         // Update the note with the header + user content
         updateNote({
-          id: createdNoteId,
+          id: createdNote.id,
           updates: {
             content: headerContent,
             title: timestamp
