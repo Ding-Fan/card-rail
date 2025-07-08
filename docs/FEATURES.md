@@ -1,5 +1,5 @@
 # Card Rail```
-✅ Implemented: 18 features
+✅ Implemented: 23 features
 🚧 In Progress: 0 features  
 📋 Planned: 4 features
 💭 Ideas: 5 features

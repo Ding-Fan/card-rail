@@ -20,6 +20,10 @@ A beautiful, mobile-first note-taking application built with Next.js, TypeScript
 - 🚀 **Next.js 15** - Latest App Router with TypeScript
 - 🗃️ **Archive System** - Archive and restore notes with smooth animations
 - 🎯 **Unified Drawer UI** - Consistent action interface with anime.js animations
+- 🔐 **Optional Cloud Sync** - Secure passphrase-based synchronization via Supabase
+- 📅 **Smart Timestamps** - Last edit time displayed on each card with relative formatting
+- 🎨 **Mobile-Optimized Sync Success** - Dedicated success page instead of modal dialogs
+- ✨ **Clean Note Creation** - Start with empty notes, no auto-generated timestamps
 
 ## Getting Started
 
@@ -155,6 +159,19 @@ pnpm db:init
 - **Local-First**: All data is stored locally first, then optionally synced
 - **Conflict Resolution**: The sync system handles conflicts by using timestamp-based resolution
 - **Privacy**: Only you can access your synced notes using your passphrase
+- **Mobile-Optimized**: Sync success flows to dedicated pages instead of modal dialogs
+- **Subtle Auto-Sync**: Background sync with minimal UI disruption - no flashing buttons
+- **Smart Status**: Clear sync indicators with last sync time and auto-sync status
+
+### Sync User Experience
+
+The sync feature is designed with mobile-first principles:
+
+1. **Clean Setup Flow**: Generate or enter a passphrase with clear validation
+2. **Success Page**: After enabling sync, navigate to a dedicated success page with passphrase backup instructions
+3. **Subtle Indicators**: Auto-sync runs quietly in the background with a small pulsing dot indicator
+4. **Manual Sync**: The "Sync Now" button only shows loading state when manually triggered
+5. **Last Sync Time**: Always visible with human-readable relative time formatting
 
 ### Troubleshooting
 
@@ -201,6 +218,20 @@ test/
 4. **Edit, Archive, Delete**: Use the unified drawer interface for all note actions
 5. **Navigation**: Use back button to return to the main card stack
 6. **Archive Management**: Access archived notes from the main navigation
+
+### Note Creation & Editing
+- **Clean Start**: New notes start completely empty - no auto-generated timestamps or headers
+- **Instant Creation**: Notes are created on first keystroke with automatic saving
+- **Smart Titles**: Note titles are automatically extracted from the first heading or first line
+- **Real-time Saving**: Changes are automatically saved after 2 seconds of inactivity
+- **Edit Mode Toggle**: Switch between edit and preview modes with the toggle button
+
+### Card Information Display
+- **Last Edit Time**: Each card shows when it was last modified in the bottom-left corner
+- **Relative Time Format**: Recent edits show as "8 minutes ago", "2 hours ago", etc.
+- **Absolute Dates**: Older edits (>7 days) display as "YYYY-MM-DD" format
+- **Nested Note Count**: Cards with child notes show a count indicator
+- **Sync Status**: Optional sync status indicators show offline/synced/conflict states
 
 ### Card Actions & Animations
 - **Unified Drawer**: All card actions (edit, archive, delete) use a consistent drawer interface
@@ -252,7 +283,9 @@ The app includes 4 diverse sample notes:
 - **Styling**: Tailwind CSS for utility-first styling
 - **Animations**: Anime.js for smooth UI transitions
 - **Content**: React Markdown with remark-gfm for GitHub Flavored Markdown
+- **Time Handling**: Day.js for relative time formatting and date manipulation
 - **Storage**: Browser localStorage with Jotai persistence utilities
+- **Sync Backend**: Supabase (optional) for cross-device synchronization
 - **Testing**: Vitest + React Testing Library
 - **Package Manager**: pnpm for efficient dependency management
 
