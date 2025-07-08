@@ -2,20 +2,28 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useRouter } from 'next/navigation';
+import { Settings, Archive } from 'lucide-react';
 import { Card } from '../components/Card';
 import {
   topLevelNotesAtom,
   notesLoadingAtom,
   initializeNotesAtom,
-  getChildNotesAtom
+  getChildNotesAtom,
+  syncSettingsAtom,
+  syncStatusAtom
 } from '../lib/atoms';
 
 export default function Home() {
+  const router = useRouter();
+
   // Jotai state management
   const topLevelNotes = useAtomValue(topLevelNotesAtom);
   const isLoading = useAtomValue(notesLoadingAtom);
   const initializeNotes = useSetAtom(initializeNotesAtom);
   const getChildNotes = useAtomValue(getChildNotesAtom);
+  const syncSettings = useAtomValue(syncSettingsAtom);
+  const syncStatus = useAtomValue(syncStatusAtom);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -96,6 +104,42 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b sticky top-0 z-10">
+        <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-bold text-gray-900">Card Rail</h1>
+            {syncSettings.enabled && (
+              <div className="flex items-center gap-1">
+                <div className={`w-2 h-2 rounded-full ${syncStatus === 'syncing' ? 'bg-blue-500 animate-pulse' :
+                    syncStatus === 'error' ? 'bg-red-500' : 'bg-green-500'
+                  }`} />
+                <span className="text-xs text-gray-500">
+                  {syncStatus === 'syncing' ? 'Syncing' :
+                    syncStatus === 'error' ? 'Error' : 'Synced'}
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => router.push('/archive')}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Archive"
+            >
+              <Archive className="w-5 h-5 text-gray-600" />
+            </button>
+            <button
+              onClick={() => router.push('/settings')}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Settings"
+            >
+              <Settings className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+        </div>
+      </header>
+
       {/* Content Container - Card Stream */}
       <div
         ref={containerRef}

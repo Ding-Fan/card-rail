@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Provider } from 'jotai';
 import { Card } from './Card';
-import { Note } from '../lib/types';
+import { Note } from '../../lib/types';
 
 // Mock the router
 vi.mock('next/navigation', () => ({

@@ -1,9 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '../../../test/utils';
 import userEvent from '@testing-library/user-event';
 import { useRouter } from 'next/navigation';
 import NoteClient from './NoteClient';
-import { JotaiProvider } from '../../../lib/JotaiProvider';
 import { storage } from '../../../lib/storage';
 import { Note } from '../../../lib/types';
 
@@ -30,6 +29,8 @@ describe('Note Edit Integration Test', () => {
         back: vi.fn(),
         refresh: vi.fn(),
         replace: vi.fn(),
+        forward: vi.fn(),
+        prefetch: vi.fn(),
     };
 
     const mockNote: Note = {
@@ -60,11 +61,7 @@ describe('Note Edit Integration Test', () => {
     });
 
     const renderNoteClient = () => {
-        return render(
-            <JotaiProvider>
-                <NoteClient note={mockNote} noteId="test-note-1" />
-            </JotaiProvider>
-        );
+        return render(<NoteClient note={mockNote} noteId="test-note-1" />);
     };
 
     it('should persist note changes when editing and going back', async () => {

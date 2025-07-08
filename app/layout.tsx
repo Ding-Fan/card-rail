@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { GlobalFAB } from "../components/FAB/GlobalFAB";
 import { FABProvider } from "../components/FAB/FABContext";
+import { ConflictResolutionManager } from "../components/ConflictResolution";
 import { JotaiProvider } from "../lib/JotaiProvider";
 import "./globals.css";
 
@@ -34,6 +35,7 @@ export default function RootLayout({
           <FABProvider>
             {children}
             <GlobalFAB />
+            <ConflictResolutionManager />
           </FABProvider>
         </JotaiProvider>
       </body>

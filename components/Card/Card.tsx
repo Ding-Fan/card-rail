@@ -174,8 +174,14 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, disableEntryAn
 
   // Removed handleClick - card clicks should do nothing
 
-  // Unified navigation handler - replaces both edit and view subnotes functionality
-  const handleOpenNote = (e?: React.MouseEvent) => {
+  // Navigation handlers
+  const handleEditNote = (e?: React.MouseEvent) => {
+    e?.stopPropagation(); // Prevent card tap event
+    setDrawerState('closed'); // Close drawer when navigating
+    router.push(`/note/${note.id}?edit=true`);
+  };
+
+  const handleViewSubnotes = (e?: React.MouseEvent) => {
     e?.stopPropagation(); // Prevent card tap event
     setDrawerState('closed'); // Close drawer when navigating
     router.push(`/note/${note.id}`);
@@ -326,7 +332,7 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, disableEntryAn
             data-testid="subnotes-indicator"
           >
             <button
-              onClick={handleOpenNote}
+              onClick={handleEditNote}
               data-testid="nested-notes-button"
               aria-label={`View nested notes (${childCount} child notes)`}
               className="flex items-center px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 text-xs font-medium rounded-full shadow-sm border border-green-200 transition-colors duration-200"
@@ -355,6 +361,22 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, disableEntryAn
 
         {/* 3-Dot Menu Button - positioned above the drawer with higher z-index */}
         <div className="absolute bottom-4 right-4 z-30" ref={menuRef}>
+          {/* Sync Status Indicator */}
+          {note.syncStatus && (
+            <div className="absolute -top-2 -left-2 z-10">
+              <div className={`w-3 h-3 rounded-full ${note.syncStatus === 'offline' ? 'bg-gray-400' :
+                  note.syncStatus === 'synced' ? 'bg-green-500' :
+                    note.syncStatus === 'conflict' ? 'bg-orange-500' :
+                      'bg-blue-500 animate-pulse'
+                }`} title={
+                  note.syncStatus === 'offline' ? 'Offline note' :
+                    note.syncStatus === 'synced' ? 'Synced' :
+                      note.syncStatus === 'conflict' ? 'Has conflict' :
+                        'Syncing...'
+                } />
+            </div>
+          )}
+
           <button
             data-testid="card-menu-button"
             onClick={toggleMenu}
@@ -376,7 +398,8 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, disableEntryAn
           drawerState={drawerState}
           isArchiveMode={isArchiveMode}
           subnoteCount={childCount}
-          onOpenNoteClick={handleOpenNote}
+          onEditNoteClick={handleEditNote}
+          onViewSubnotesClick={childCount > 0 ? handleViewSubnotes : undefined}
           onArchiveClick={handleArchiveClick}
           onDeleteClick={handleDeleteClick}
           onArchiveConfirm={handleArchiveConfirm}
@@ -399,7 +422,7 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, disableEntryAn
       >
         <CardBackPanel
           parentNoteId={note.id}
-          onEnterNote={handleOpenNote}
+          onEnterNote={handleEditNote}
           onArchive={handleArchiveConfirm}
           onDelete={handleDeleteConfirm}
           isArchiveMode={isArchiveMode}

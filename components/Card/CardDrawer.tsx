@@ -9,7 +9,8 @@ interface CardDrawerProps {
     drawerState: DrawerState;
     isArchiveMode?: boolean;
     subnoteCount?: number;
-    onOpenNoteClick: () => void;
+    onEditNoteClick: () => void;
+    onViewSubnotesClick?: () => void;
     onArchiveClick: () => void;
     onDeleteClick: () => void;
     onArchiveConfirm: () => void;
@@ -22,7 +23,8 @@ export const CardDrawer: React.FC<CardDrawerProps> = ({
     drawerState,
     isArchiveMode = false,
     subnoteCount = 0,
-    onOpenNoteClick,
+    onEditNoteClick,
+    onViewSubnotesClick,
     onArchiveClick,
     onDeleteClick,
     onArchiveConfirm,
@@ -78,17 +80,33 @@ export const CardDrawer: React.FC<CardDrawerProps> = ({
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                onOpenNoteClick();
+                                onEditNoteClick();
                             }}
-                            data-testid="enter-note-button"
+                            data-testid="edit-button"
                             className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors rounded-md border-b border-gray-200/50 last:border-b-0"
                         >
                             <svg className="w-5 h-5 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
-                            Enter Note
+                            Edit Note
                         </button>
+
+                        {subnoteCount > 0 && onViewSubnotesClick && (
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onViewSubnotesClick();
+                                }}
+                                data-testid="view-subnotes-button"
+                                className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors rounded-md border-b border-gray-200/50 last:border-b-0"
+                            >
+                                <svg className="w-5 h-5 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                                </svg>
+                                View Subnotes ({subnoteCount})
+                            </button>
+                        )}
 
                         {isArchiveMode ? (
                             <button
@@ -112,18 +130,6 @@ export const CardDrawer: React.FC<CardDrawerProps> = ({
                                     e.stopPropagation();
                                     onArchiveClick();
                                 }}
-                                onMouseDown={(e) => {
-                                    e.stopPropagation();
-                                    // For desktop, trigger on mousedown to be more responsive
-                                    onArchiveClick();
-                                }}
-                                onTouchEnd={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    // For mobile, use touchend instead of click
-                                    onArchiveClick();
-                                }}
-                                style={{ touchAction: 'manipulation' }}
                                 className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors rounded-md"
                                 data-testid="archive-button"
                             >

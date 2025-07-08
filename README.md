@@ -63,6 +63,110 @@ pnpm lint         # Run ESLint and Next.js linting
 
 Open [http://localhost:3000](http://localhost:3000) on your mobile device or browser's mobile view.
 
+## Sync Setup (Optional)
+
+Card Rail includes an optional sync feature that allows you to synchronize your notes across devices using Supabase. This feature requires setting up a Supabase project and creating the necessary database tables.
+
+### Manual Supabase Setup
+
+If you want to enable sync functionality, follow these steps to set up your Supabase database:
+
+#### 1. Create a Supabase Project
+
+1. Go to [supabase.com](https://supabase.com) and sign up/log in
+2. Create a new project
+3. Note your project URL and anon key from the project settings
+
+#### 2. Create Required Tables
+
+Open your Supabase project dashboard, go to the **SQL Editor**, and run this SQL script to create the required tables:
+
+```sql
+-- Create sync_users table for user management
+CREATE TABLE sync_users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id VARCHAR(255) UNIQUE NOT NULL,
+    passphrase_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create sync_notes table for note synchronization
+CREATE TABLE sync_notes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id VARCHAR(255) NOT NULL,
+    note_id VARCHAR(255) NOT NULL,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    is_archived BOOLEAN DEFAULT FALSE,
+    
+    -- Foreign key constraint
+    FOREIGN KEY (user_id) REFERENCES sync_users(user_id) ON DELETE CASCADE,
+    
+    -- Unique constraint to prevent duplicate notes per user
+    UNIQUE(user_id, note_id)
+);
+
+-- Create indexes for better performance
+CREATE INDEX idx_sync_users_user_id ON sync_users(user_id);
+CREATE INDEX idx_sync_notes_user_id ON sync_notes(user_id);
+CREATE INDEX idx_sync_notes_note_id ON sync_notes(note_id);
+CREATE INDEX idx_sync_notes_updated_at ON sync_notes(updated_at);
+
+-- Enable Row Level Security (RLS) for data protection
+ALTER TABLE sync_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sync_notes ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policies for sync_users table
+CREATE POLICY "Users can only access their own data" ON sync_users
+    FOR ALL USING (auth.uid()::text = user_id);
+
+-- Create RLS policies for sync_notes table
+CREATE POLICY "Users can only access their own notes" ON sync_notes
+    FOR ALL USING (auth.uid()::text = user_id);
+```
+
+#### 3. Configure Environment Variables
+
+Create a `.env.local` file in your project root with your Supabase credentials:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+#### 4. Test the Setup
+
+After setting up the database, you can test the sync functionality:
+
+```bash
+# Run sync-related tests to verify everything works
+pnpm test:sync
+
+# Run the database initialization script (optional)
+pnpm db:init
+```
+
+### How Sync Works
+
+- **Passphrase-Based**: Users create a secure passphrase that generates a unique user ID
+- **Local-First**: All data is stored locally first, then optionally synced
+- **Conflict Resolution**: The sync system handles conflicts by using timestamp-based resolution
+- **Privacy**: Only you can access your synced notes using your passphrase
+
+### Troubleshooting
+
+If you encounter issues with sync:
+
+1. **Check Environment Variables**: Ensure your `.env.local` file has the correct Supabase credentials
+2. **Verify Database Tables**: Run the SQL script again to ensure all tables are created
+3. **Test Connection**: Use the test scripts to verify your Supabase connection
+4. **Check Logs**: Look at the browser console for any error messages
+
+For more detailed setup information, see the [DATABASE_SETUP.md](DATABASE_SETUP.md) file.
+
 ## Project Structure
 
 ```

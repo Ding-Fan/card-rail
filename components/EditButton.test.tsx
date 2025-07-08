@@ -13,12 +13,12 @@ vi.mock('next/navigation', () => ({
 
 mockAnimejs()
 
-describe('Card Component - Enter Note Button', () => {
+describe('Card Component - Edit Note Button', () => {
   beforeEach(() => {
     mockPush.mockClear()
   })
 
-  it('should render an enter note button in the card header', () => {
+  it('should render an edit note button in the card menu', () => {
     render(<Card note={mockNotes.simple} />)
 
     // Card now uses a menu button instead of direct edit button
@@ -28,12 +28,12 @@ describe('Card Component - Enter Note Button', () => {
     // Click to open menu
     fireEvent.click(menuButton)
 
-    // Should find enter note option in the menu
-    const enterNoteButton = screen.getByTestId('enter-note-button')
-    expect(enterNoteButton).toBeInTheDocument()
+    // Should find edit note option in the menu
+    const editButton = screen.getByTestId('edit-button')
+    expect(editButton).toBeInTheDocument()
   })
 
-  it('should have proper enter note button styling and icon', () => {
+  it('should have proper edit note button styling and icon', () => {
     render(<Card note={mockNotes.simple} />)
 
     // Open the menu
@@ -44,38 +44,38 @@ describe('Card Component - Enter Note Button', () => {
     expect(menuButton).toHaveClass('bg-gray-100', 'text-gray-600', 'rounded-full')
     expect(menuButton).toHaveClass('w-8', 'h-8')
 
-    // Should have enter note option in menu
-    const enterNoteOption = screen.getByTestId('enter-note-button')
-    expect(enterNoteOption).toBeInTheDocument()
+    // Should have edit note option in menu
+    const editOption = screen.getByTestId('edit-button')
+    expect(editOption).toBeInTheDocument()
   })
 
-  it('should navigate to note page when enter note button is clicked', () => {
+  it('should navigate to note page when edit note button is clicked', () => {
     render(<Card note={mockNotes.simple} />)
 
     // Open the menu first
     const menuButton = screen.getByTestId('card-menu-button')
     fireEvent.click(menuButton)
 
-    // Click the enter note option
-    const enterNoteButton = screen.getByTestId('enter-note-button')
-    fireEvent.click(enterNoteButton)
+    // Click the edit note option
+    const editButton = screen.getByTestId('edit-button')
+    fireEvent.click(editButton)
 
-    expect(mockPush).toHaveBeenCalledWith('/note/1')
+    expect(mockPush).toHaveBeenCalledWith('/note/1?edit=true')
   })
 
-  it('should stop event propagation on enter note button click', () => {
+  it('should stop event propagation on edit note button click', () => {
     render(<Card note={mockNotes.simple} />)
 
     // Open the menu first
     const menuButton = screen.getByTestId('card-menu-button')
     fireEvent.click(menuButton)
 
-    // Click the enter note option
-    const enterNoteButton = screen.getByTestId('enter-note-button')
-    fireEvent.click(enterNoteButton)
+    // Click the edit note option
+    const editButton = screen.getByTestId('edit-button')
+    fireEvent.click(editButton)
 
-    // Enter note button should work independently
-    expect(mockPush).toHaveBeenCalledWith('/note/1')
+    // Edit note button should work independently
+    expect(mockPush).toHaveBeenCalledWith('/note/1?edit=true')
   })
 
   it('should be accessible with proper ARIA labels', () => {
@@ -84,9 +84,9 @@ describe('Card Component - Enter Note Button', () => {
     const menuButton = screen.getByTestId('card-menu-button')
     expect(menuButton).toHaveAttribute('aria-label', 'Card options')
 
-    // Open menu and check enter note option accessibility
+    // Open menu and check edit note option accessibility
     fireEvent.click(menuButton)
-    const enterNoteOption = screen.getByTestId('enter-note-button')
-    expect(enterNoteOption).toBeInTheDocument()
+    const editOption = screen.getByTestId('edit-button')
+    expect(editOption).toBeInTheDocument()
   })
 })
