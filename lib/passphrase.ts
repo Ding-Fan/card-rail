@@ -37,7 +37,7 @@ export const generateUserId = async (passphrase: string): Promise<string> => {
         // Check if we're in a test environment (Vitest) or pure Node.js
         if (typeof process !== 'undefined' && (process.env?.VITEST || !process.versions?.browser)) {
             // In test/Node.js environment, use a deterministic hash approach
-            const crypto = require('crypto');
+            const crypto = await import('crypto');
             const hash = crypto.createHash('sha256').update(passphrase.trim()).digest('hex');
             return hash.slice(0, 8);
         }

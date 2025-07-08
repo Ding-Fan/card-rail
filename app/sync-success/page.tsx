@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CheckCircle, Copy, Check, ArrowLeft } from 'lucide-react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
-export default function SyncSuccessPage() {
+function SyncSuccessContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [copySuccess, setCopySuccess] = useState(false);
@@ -28,25 +28,6 @@ export default function SyncSuccessPage() {
 
     const handleContinue = () => {
         router.push('/settings');
-    };
-
-    const generateBackupReminder = () => {
-        return `🔒 IMPORTANT: Save this passphrase securely!
-
-Your passphrase is the ONLY way to access your synced notes on other devices. If you lose it, you'll lose access to your synced data.
-
-💡 Recommended storage methods:
-• Password manager (1Password, Bitwarden, etc.)
-• Secure note-taking app
-• Write it down and store in a safe place
-
-❌ DO NOT:
-• Share it with anyone
-• Store it in plain text files
-• Email it to yourself
-• Save it in browser bookmarks
-
-✅ Your notes are now syncing securely across all your devices using this passphrase as your unique key.`;
     };
 
     if (!passphrase) {
@@ -141,7 +122,7 @@ Your passphrase is the ONLY way to access your synced notes on other devices. If
                                 Your passphrase is the ONLY way to access your synced notes on other devices.
                             </p>
                             <p className="text-red-700 text-sm">
-                                If you lose it, you'll lose access to your synced data.
+                                If you lose it, you&apos;ll lose access to your synced data.
                             </p>
                         </div>
 
@@ -180,10 +161,25 @@ Your passphrase is the ONLY way to access your synced notes on other devices. If
                         onClick={handleContinue}
                         className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
                     >
-                        I've Saved My Passphrase
+                        I&apos;ve Saved My Passphrase
                     </button>
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function SyncSuccessPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading...</p>
+                </div>
+            </div>
+        }>
+            <SyncSuccessContent />
+        </Suspense>
     );
 }

@@ -10,7 +10,6 @@ import {
     enableSyncAtom,
     disableSyncAtom,
     updateSyncSettingsAtom,
-    syncStatusAtom,
     offlineNotesAtom,
     syncedNotesAtom,
     conflictNotesOnlyAtom,
@@ -32,7 +31,6 @@ export default function SettingsPage() {
     const updateSyncSettings = useSetAtom(updateSyncSettingsAtom);
     const syncNotes = useSetAtom(syncNotesAtom);
     const initializeSync = useSetAtom(initializeSyncAtom);
-    const syncStatus = useAtomValue(syncStatusAtom);
     const offlineNotes = useAtomValue(offlineNotesAtom);
     const syncedNotes = useAtomValue(syncedNotesAtom);
     const conflictNotes = useAtomValue(conflictNotesOnlyAtom);
@@ -40,7 +38,6 @@ export default function SettingsPage() {
     // Local state
     const [showPassphraseForm, setShowPassphraseForm] = useState(false);
     const [passphrase, setPassphrase] = useState('');
-    const [generatedPassphrase, setGeneratedPassphrase] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [isNewUser, setIsNewUser] = useState(false);
@@ -100,7 +97,6 @@ export default function SettingsPage() {
     const handleGeneratePassphrase = async () => {
         try {
             const newPassphrase = await generatePassphrase();
-            setGeneratedPassphrase(newPassphrase);
             setPassphrase(newPassphrase);
             setIsNewUser(true);
             setError(''); // Clear any previous errors
@@ -137,7 +133,6 @@ export default function SettingsPage() {
 
             setShowPassphraseForm(false);
             setPassphrase('');
-            setGeneratedPassphrase('');
             setIsNewUser(false);
 
         } catch (error) {
@@ -384,7 +379,6 @@ export default function SettingsPage() {
                                         onClick={() => {
                                             setShowPassphraseForm(false);
                                             setPassphrase('');
-                                            setGeneratedPassphrase('');
                                             setError('');
                                             setIsNewUser(false);
                                         }}
