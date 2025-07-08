@@ -6,10 +6,15 @@ import remarkGfm from 'remark-gfm';
 import { useRouter } from 'next/navigation';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { animate } from 'animejs';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { Note } from '../../lib/types';
 import { archiveNoteAtom, deleteNoteAtom, removingCardsAtom, flippedCardsAtom, flipCardAtom } from '../../lib/atoms';
 import { CardDrawer } from './CardDrawer';
 import { CardBackPanel } from './CardBackPanel';
+
+// Extend dayjs with relativeTime plugin
+dayjs.extend(relativeTime);
 
 interface CardProps {
   note: Note;
@@ -28,6 +33,23 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, disableEntryAn
   const backRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [isAnimated, setIsAnimated] = React.useState(disableEntryAnimation);
+
+  // Utility function to format the last edit time using Day.js
+  const formatLastEditTime = (updatedAt: string) => {
+    const lastEdit = dayjs(updatedAt);
+    const now = dayjs();
+    const diffMinutes = now.diff(lastEdit, 'minute');
+    const diffDays = now.diff(lastEdit, 'day');
+
+    // Use Day.js fromNow() for readable relative time
+    if (diffMinutes < 1) {
+      return 'now';
+    } else if (diffDays < 7) {
+      return lastEdit.fromNow();
+    } else {
+      return lastEdit.format('YYYY-MM-DD');
+    }
+  };
 
   // Jotai state management
   const removingCards = useAtomValue(removingCardsAtom);
@@ -325,39 +347,40 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, disableEntryAn
           />
         </div>
 
-        {/* Subnotes Indicator - bottom left corner */}
-        {childCount > 0 && showNestedIcon && (
-          <div
-            className="absolute bottom-4 left-4 z-20"
-            data-testid="subnotes-indicator"
-          >
-            <button
-              onClick={handleEditNote}
-              data-testid="nested-notes-button"
-              aria-label={`View nested notes (${childCount} child notes)`}
-              className="flex items-center px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 text-xs font-medium rounded-full shadow-sm border border-green-200 transition-colors duration-200"
-            >
-              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-              </svg>
-              {childCount > 9 ? '9+' : childCount}
-            </button>
-          </div>
-        )}
-        {/* Subnotes Indicator (non-clickable) - bottom left corner */}
-        {childCount > 0 && !showNestedIcon && (
-          <div
-            className="absolute bottom-4 left-4 z-20"
-            data-testid="subnotes-indicator"
-          >
-            <div className="flex items-center px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full shadow-sm border border-green-200">
-              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-              </svg>
-              {childCount}
+        {/* Bottom Left Corner - Subnotes and Edit Time */}
+        <div className="absolute bottom-4 left-4 z-20 flex flex-col items-start space-y-1">
+          {/* Subnotes Indicator - clickable */}
+          {childCount > 0 && showNestedIcon && (
+            <div data-testid="subnotes-indicator">
+              <button
+                onClick={handleEditNote}
+                data-testid="nested-notes-button"
+                aria-label={`View nested notes (${childCount} child notes)`}
+                className="flex items-center px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 text-xs font-medium rounded-full shadow-sm border border-green-200 transition-colors duration-200"
+              >
+                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                </svg>
+                {childCount > 9 ? '9+' : childCount}
+              </button>
             </div>
+          )}
+          {/* Subnotes Indicator (non-clickable) */}
+          {childCount > 0 && !showNestedIcon && (
+            <div data-testid="subnotes-indicator">
+              <div className="flex items-center px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full shadow-sm border border-green-200">
+                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                </svg>
+                {childCount}
+              </div>
+            </div>
+          )}
+          {/* Last Edit Time */}
+          <div className="text-xs text-gray-400 font-mono">
+            {formatLastEditTime(note.updated_at)}
           </div>
-        )}
+        </div>
 
         {/* 3-Dot Menu Button - positioned above the drawer with higher z-index */}
         <div className="absolute bottom-4 right-4 z-30" ref={menuRef}>
@@ -365,9 +388,9 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, disableEntryAn
           {note.syncStatus && (
             <div className="absolute -top-2 -left-2 z-10">
               <div className={`w-3 h-3 rounded-full ${note.syncStatus === 'offline' ? 'bg-gray-400' :
-                  note.syncStatus === 'synced' ? 'bg-green-500' :
-                    note.syncStatus === 'conflict' ? 'bg-orange-500' :
-                      'bg-blue-500 animate-pulse'
+                note.syncStatus === 'synced' ? 'bg-green-500' :
+                  note.syncStatus === 'conflict' ? 'bg-orange-500' :
+                    'bg-blue-500 animate-pulse'
                 }`} title={
                   note.syncStatus === 'offline' ? 'Offline note' :
                     note.syncStatus === 'synced' ? 'Synced' :

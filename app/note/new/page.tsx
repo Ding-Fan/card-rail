@@ -58,22 +58,17 @@ export default function NewNotePage() {
 
     // If this is the first keystroke (note not yet created)
     if (!noteId && newContent.length > 0) {
-      // Create note with auto-generated timestamp header
-      const now = new Date();
-      const timestamp = now.toLocaleString(); // e.g., "6/19/2025, 10:30:00 AM"
-      const headerContent = `# ${timestamp}\n\n${newContent}`;
-
+      // Create note with user content only
       const createdNote = createNote();
       if (createdNote) {
         setNoteId(createdNote.id);
-        setContent(headerContent);
 
-        // Update the note with the header + user content
+        // Update the note with the user content
         updateNote({
           id: createdNote.id,
           updates: {
-            content: headerContent,
-            title: timestamp
+            content: newContent,
+            title: getTitle(newContent)
           }
         });
       }
