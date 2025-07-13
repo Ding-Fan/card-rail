@@ -7,9 +7,9 @@
  * This creates a cryptographically secure seed phrase for wallet recovery
  */
 export const generatePassphrase = async (): Promise<string> => {
-    // Check if we're in a test environment (Vitest) or pure Node.js
-    if (typeof process !== 'undefined' && (process.env?.VITEST || !process.versions?.browser)) {
-        // In test/Node.js environment, return a test phrase for consistent behavior
+    // Check if we're in a test environment (Vitest)
+    if (typeof process !== 'undefined' && process.env?.VITEST) {
+        // In test environment, return a test phrase for consistent behavior
         return 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     }
 
@@ -34,9 +34,9 @@ export const generateUserId = async (passphrase: string): Promise<string> => {
     }
 
     try {
-        // Check if we're in a test environment (Vitest) or pure Node.js
-        if (typeof process !== 'undefined' && (process.env?.VITEST || !process.versions?.browser)) {
-            // In test/Node.js environment, use a deterministic hash approach
+        // Check if we're in a test environment (Vitest)
+        if (typeof process !== 'undefined' && process.env?.VITEST) {
+            // In test environment, use a deterministic hash approach
             const crypto = await import('crypto');
             const hash = crypto.createHash('sha256').update(passphrase.trim()).digest('hex');
             return hash.slice(0, 8);
@@ -57,9 +57,9 @@ export const generateUserId = async (passphrase: string): Promise<string> => {
  */
 export const validatePassphrase = async (passphrase: string): Promise<boolean> => {
     try {
-        // Check if we're in a test environment (Vitest) or pure Node.js
-        if (typeof process !== 'undefined' && (process.env?.VITEST || !process.versions?.browser)) {
-            // In test/Node.js environment, do basic validation
+        // Check if we're in a test environment (Vitest)
+        if (typeof process !== 'undefined' && process.env?.VITEST) {
+            // In test environment, do basic validation
             const words = passphrase.trim().split(' ');
             return words.length === 12 && words.every(word => word.length > 0);
         }

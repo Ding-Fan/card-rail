@@ -376,18 +376,11 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, disableEntryAn
               </div>
             </div>
           )}
-          {/* Last Edit Time */}
-          <div className="text-xs text-gray-400 font-mono">
-            {formatLastEditTime(note.updated_at)}
-          </div>
-        </div>
-
-        {/* 3-Dot Menu Button - positioned above the drawer with higher z-index */}
-        <div className="absolute bottom-4 right-4 z-30" ref={menuRef}>
-          {/* Sync Status Indicator */}
-          {note.syncStatus && (
-            <div className="absolute -top-2 -left-2 z-10">
-              <div className={`w-3 h-3 rounded-full ${note.syncStatus === 'offline' ? 'bg-gray-400' :
+          {/* Last Edit Time with Sync Indicator */}
+          <div className="flex items-center gap-1">
+            {/* Sync Status Indicator */}
+            {note.syncStatus && (
+              <div className={`w-2 h-2 rounded-full ${note.syncStatus === 'offline' ? 'bg-gray-400' :
                 note.syncStatus === 'synced' ? 'bg-green-500' :
                   note.syncStatus === 'conflict' ? 'bg-orange-500' :
                     'bg-blue-500 animate-pulse'
@@ -397,8 +390,15 @@ export const Card: React.FC<CardProps> = ({ note, childCount = 0, disableEntryAn
                       note.syncStatus === 'conflict' ? 'Has conflict' :
                         'Syncing...'
                 } />
+            )}
+            <div className="text-xs text-gray-400 font-mono">
+              {formatLastEditTime(note.updated_at)}
             </div>
-          )}
+          </div>
+        </div>
+
+        {/* 3-Dot Menu Button - positioned above the drawer with higher z-index */}
+        <div className="absolute bottom-4 right-4 z-30" ref={menuRef}>
 
           <button
             data-testid="card-menu-button"

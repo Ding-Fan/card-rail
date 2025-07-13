@@ -126,8 +126,8 @@ export default function SettingsPage() {
             console.log('Sync enabled');
 
             if (isNewUser) {
-                // Navigate to sync success page with passphrase
-                router.push(`/sync-success?passphrase=${encodeURIComponent(passphrase)}`);
+                // Navigate to sync success page with passphrase (replace to avoid history issues)
+                router.replace(`/sync-success?passphrase=${encodeURIComponent(passphrase)}`);
                 return;
             }
 
@@ -185,7 +185,7 @@ export default function SettingsPage() {
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-6">
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => router.push('/')}
                         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />

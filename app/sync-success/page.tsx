@@ -27,7 +27,8 @@ function SyncSuccessContent() {
     };
 
     const handleContinue = () => {
-        router.push('/settings');
+        // Replace the current history entry to prevent back navigation to this page
+        router.replace('/settings');
     };
 
     if (!passphrase) {
@@ -48,7 +49,7 @@ function SyncSuccessContent() {
                 <div className="max-w-2xl mx-auto px-4 py-4">
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={() => router.push('/settings')}
+                            onClick={() => router.push('/')}
                             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                         >
                             <ArrowLeft className="w-5 h-5" />
